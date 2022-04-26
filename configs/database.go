@@ -4,7 +4,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
-	"github.com/RPA_VoucherExchange/entities/receipts"
+	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/utils"
 )
 
@@ -27,7 +27,9 @@ func (db *database) ConnectDB() {
 	password := utils.GetDotEnv("DB_PASSWORD")
 
 	dsn := "root:" + password + "@tcp(127.0.0.1:3306)/rpa_voucher_exchange?charset=utf8mb4&parseTime=True&loc=Local"
-	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: false,
+	})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
@@ -36,9 +38,13 @@ func (db *database) ConnectDB() {
 
 func (db *database) Init() {
 	db.connection.AutoMigrate(
-		&receipts.ReceiptStatus{},
-		&receipts.Receipt{},
-		&receipts.ReceiptItem{},
+		&entities.ReceiptStatus{},
+		&entities.Receipt{},
+		&entities.ReceiptItem{},
+		&entities.Customer{},
+		&entities.Voucher{},
+		&entities.VoucherItem{},
+		&entities.GiftItem{},
 	)
 }
 
