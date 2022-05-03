@@ -6,28 +6,15 @@ import (
 )
 
 var (
-	connection = configs.NewDBConnection()
+	conn = configs.NewDBConnection()
 )
 
 func main() {
 	server := gin.New()
 
-	connection.ConnectDB()
-	defer connection.CloseDB()
-	connection.Init()
-
-	//db := connection.GetDB()
-	// db.Create(&receipts.ReceiptItem{
-	// 	ProductCode: "abcd",
-	// 	Name:        "abcd",
-	// 	UnitPrice:   10000,
-	// 	Quantity:    1,
-	// })
-	// db.Create(&receipts.Receipt{
-	// 	TransactionID:   "abcd",
-	// 	TransactionDate: "abcd",
-	// 	StatusID:        1,
-	// })
+	conn.ConnectDB()
+	defer conn.CloseDB()
+	conn.Init()
 
 	server.Run(":8080")
 }

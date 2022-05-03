@@ -43,8 +43,8 @@ func (db *database) Init() {
 		&entities.ReceiptItem{},
 		&entities.Customer{},
 		&entities.Voucher{},
-		&entities.VoucherItem{},
-		&entities.GiftItem{},
+		&entities.Product{},
+		&entities.Gift{},
 	)
 }
 
