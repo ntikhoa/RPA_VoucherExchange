@@ -16,5 +16,8 @@ func main() {
 	defer conn.CloseDB()
 	conn.Init()
 
+	// db := conn.GetDB()
+	// utils.Seeding(db)
+
 	server.Run(":8080")
 }

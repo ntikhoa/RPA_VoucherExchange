@@ -38,6 +38,7 @@ func (db *database) ConnectDB() {
 
 func (db *database) Init() {
 	db.connection.AutoMigrate(
+		&entities.Provider{},
 		&entities.ReceiptStatus{},
 		&entities.Receipt{},
 		&entities.ReceiptItem{},
