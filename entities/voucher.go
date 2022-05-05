@@ -10,6 +10,6 @@ type Voucher struct {
 	TotalPriceMin int        `gorm:"not null"`
 	TotalPriceMax int        `gorm:"not null"`
 	Published     bool       `gorm:"not null"`
-	Product       []*Product `gorm:"many2many:voucher_product"`
+	Product       []*Product `gorm:"many2many:voucher_products"`
 	Gift          []*Gift    `gorm:"foreignKey:VoucherID"`
 }
