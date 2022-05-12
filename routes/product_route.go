@@ -24,11 +24,14 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 			productController.Create(ctx)
 		})
 
-	g.DELETE("/:id", func(ctx *gin.Context) {
-		productController.Delete(ctx)
-	})
+	g.DELETE("/:id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			productController.Delete(ctx)
+		})
 
 	g.PUT("/:id",
+		middlewares.GetIDFromURL(),
 		middlewares.ValidateProductRequest(),
 		func(ctx *gin.Context) {
 			productController.Update(ctx)
@@ -38,7 +41,9 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		productController.FindAll(ctx)
 	})
 
-	g.GET("/:id", func(ctx *gin.Context) {
-		productController.FindByID(ctx)
-	})
+	g.GET("/:id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			productController.FindByID(ctx)
+		})
 }

@@ -24,7 +24,6 @@ type ProductController interface {
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 
-	fetchProductIDParam(ctx *gin.Context) (uint, error)
 	abortAndCheckError(ctx *gin.Context, err error)
 }
 
@@ -56,13 +55,8 @@ func (c *productController) Create(ctx *gin.Context) {
 }
 
 func (c *productController) Update(ctx *gin.Context) {
-	productID, err := c.fetchProductIDParam(ctx)
-	if err != nil {
-		log.Println(err)
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
 
+	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
 	product.Model.ID = productID
 	product.ProviderID = globalProviderID
@@ -81,13 +75,8 @@ func (c *productController) Update(ctx *gin.Context) {
 }
 
 func (c *productController) Delete(ctx *gin.Context) {
-	productID, err := c.fetchProductIDParam(ctx)
-	if err != nil {
-		log.Println(err)
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
 
+	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	if err := c.productService.DeleteByID(productID, globalProviderID); err != nil {
 		log.Println(err)
 		c.abortAndCheckError(ctx, err)
@@ -141,13 +130,8 @@ func (c *productController) FindAll(ctx *gin.Context) {
 }
 
 func (c *productController) FindByID(ctx *gin.Context) {
-	productID, err := c.fetchProductIDParam(ctx)
-	if err != nil {
-		log.Println(err)
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
 
+	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	product, err := c.productService.FindByID(productID, globalProviderID)
 	if err != nil {
 		log.Println(err)
@@ -178,16 +162,4 @@ func (c *productController) abortAndCheckError(ctx *gin.Context, err error) {
 	default:
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 	}
-}
-
-//@return ProductID, error
-//if fetch successfully, error = nil
-//if there is an error, ProductID = 0
-func (c *productController) fetchProductIDParam(ctx *gin.Context) (uint, error) {
-	productIDParam, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		return 0, errors.New("invalid product ID")
-	}
-	productID := uint(productIDParam)
-	return productID, nil
 }
