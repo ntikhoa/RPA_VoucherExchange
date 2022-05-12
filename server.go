@@ -20,6 +20,7 @@ func main() {
 	db := conn.GetDB()
 	// utils.Seeding(db)
 
+	server.Use(middlewares.SetContentTypeJSON())
 	server.Use(middlewares.ErrorHandler())
 
 	apiRoutesV1 := server.Group("/api/v1")
