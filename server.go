@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
@@ -12,6 +14,7 @@ var (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 	server := gin.New()
 
 	conn.ConnectDB()
@@ -32,5 +35,5 @@ func main() {
 		}
 	}
 
-	server.Run(":8080")
+	server.Run(":" + port)
 }
