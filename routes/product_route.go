@@ -9,14 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func new(db *gorm.DB) controllers.ProductController {
+func initProductController(db *gorm.DB) controllers.ProductController {
 	productRepo := repositories.NewProductRepo(db)
 	productService := services.NewProductService(productRepo)
 	return controllers.NewProductController(productService)
 }
 
 func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
-	productController := new(db)
+	productController := initProductController(db)
 
 	g.POST("",
 		middlewares.ValidateProductRequest(),
