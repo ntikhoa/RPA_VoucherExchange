@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
@@ -12,11 +14,15 @@ var (
 )
 
 func main() {
+	//for loading local .env file
+	// utils.LoadDotEnv()
+
+	port := os.Getenv("PORT")
 	server := gin.New()
 
 	conn.ConnectDB()
 	defer conn.CloseDB()
-	conn.Init()
+	// conn.Init()
 	db := conn.GetDB()
 	// utils.Seeding(db)
 
@@ -32,5 +38,5 @@ func main() {
 		}
 	}
 
-	server.Run(":8080")
+	server.Run(":" + port)
 }
