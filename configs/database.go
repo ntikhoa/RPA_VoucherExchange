@@ -1,11 +1,12 @@
 package configs
 
 import (
+	"os"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
 	"github.com/RPA_VoucherExchange/entities"
-	"github.com/RPA_VoucherExchange/utils"
 )
 
 type Database interface {
@@ -13,6 +14,8 @@ type Database interface {
 	Init()
 	GetDB() *gorm.DB
 	CloseDB()
+
+	getURL() string
 }
 
 type database struct {
@@ -24,9 +27,7 @@ func NewDBConnection() Database {
 }
 
 func (db *database) ConnectDB() {
-	password := utils.GetDotEnv("DB_PASSWORD")
-
-	dsn := "root:" + password + "@tcp(127.0.0.1:3306)/rpa_voucher_exchange?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := db.getURL()
 	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: false,
 	})
@@ -60,4 +61,20 @@ func (db *database) CloseDB() {
 		panic("Failed to close connection")
 	}
 	sqlDB.Close()
+}
+
+func (db *database) getURL() string {
+	//for local db instance
+	// password := os.Getenv("LOCAL_DB_PASSWORD")
+	// dsn := "root:" + password + "@tcp(127.0.0.1:3306)/rpa_voucher_exchange?charset=utf8mb4&parseTime=True&loc=Local"
+	// return dsn
+
+	//for remote db instance
+	username := os.Getenv("REMOTE_DB_USERNAME")
+	password := os.Getenv("REMOTE_DB_PASSWORD")
+	hostname := "@tcp(" + os.Getenv("REMOTE_DB_HOST") + ")"
+	dbName := os.Getenv("REMOTE_DB_NAME")
+	option := "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := username + ":" + password + hostname + "/" + dbName + option
+	return dsn
 }
