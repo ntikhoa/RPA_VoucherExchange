@@ -12,11 +12,11 @@ import (
 )
 
 type ProductService interface {
-	Create(product entities.Product) error
-	Update(product entities.Product) error
-	DeleteByID(productID uint, providerID uint) error
-	FindAllWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
-	FindByID(productID uint, providerID uint) (entities.Product, error)
+	CreateProduct(product entities.Product) error
+	UpdateProduct(product entities.Product) error
+	DeleteProductByID(productID uint, providerID uint) error
+	FindAllProductWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
+	FindProductByID(productID uint, providerID uint) (entities.Product, error)
 	GetProductCount(providerID uint) (int64, error)
 }
 
@@ -30,12 +30,12 @@ func NewProductService(repo repositories.ProductRepo) ProductService {
 	}
 }
 
-func (s *productService) Create(product entities.Product) error {
-	return s.repo.Create(product)
+func (s *productService) CreateProduct(product entities.Product) error {
+	return s.repo.CreateProduct(product)
 }
 
-func (s *productService) Update(product entities.Product) error {
-	fetchedProduct, err := s.repo.FindByID(product.Model.ID)
+func (s *productService) UpdateProduct(product entities.Product) error {
+	fetchedProduct, err := s.repo.FindProductByID(product.Model.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &custom_error.NotFoundError{}
@@ -46,11 +46,11 @@ func (s *productService) Update(product entities.Product) error {
 	if fetchedProduct.ProviderID != product.ProviderID {
 		return &custom_error.AuthorizedError{}
 	}
-	return s.repo.Update(product)
+	return s.repo.UpdateProduct(product)
 }
 
-func (s *productService) DeleteByID(productID uint, providerID uint) error {
-	product, err := s.repo.FindByID(productID)
+func (s *productService) DeleteProductByID(productID uint, providerID uint) error {
+	product, err := s.repo.FindProductByID(productID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
@@ -61,10 +61,10 @@ func (s *productService) DeleteByID(productID uint, providerID uint) error {
 	if product.ProviderID != providerID {
 		return &custom_error.AuthorizedError{}
 	}
-	return s.repo.DeleteByID(productID)
+	return s.repo.DeleteProductByID(productID)
 }
 
-func (s *productService) FindAllWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error) {
+func (s *productService) FindAllProductWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error) {
 	pagingMetadata := viewmodel.PagingMetadata{}
 
 	count, err := s.repo.GetProductCount(providerID)
@@ -83,12 +83,12 @@ func (s *productService) FindAllWithPage(providerID uint, page int, perPage int)
 		TotalPages:   totalPages,
 		TotalRecords: int(count),
 	}
-	products, err := s.repo.FindAllWithPage(providerID, page, perPage)
+	products, err := s.repo.FindAllProductWithPage(providerID, page, perPage)
 	return pagingMetadata, products, err
 }
 
-func (s *productService) FindByID(productID uint, providerID uint) (entities.Product, error) {
-	product, err := s.repo.FindByID(productID)
+func (s *productService) FindProductByID(productID uint, providerID uint) (entities.Product, error) {
+	product, err := s.repo.FindProductByID(productID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return product, &custom_error.NotFoundError{}
