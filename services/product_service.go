@@ -69,14 +69,11 @@ func (s *productService) FindAllWithPage(providerID uint, page int, perPage int)
 
 	count, err := s.repo.GetProductCount(providerID)
 	if err != nil {
-		// log.Println(err)
-		// ctx.AbortWithError(http.StatusInternalServerError, err)
 		return pagingMetadata, nil, err
 	}
 	d := float64(count) / float64(perPage)
 	totalPages := int(math.Ceil(d))
 	if page > totalPages {
-		// ctx.AbortWithError(http.StatusNotFound, errExhausted)
 		return pagingMetadata, nil, &custom_error.ExhaustedError{}
 	}
 
