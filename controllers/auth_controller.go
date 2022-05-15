@@ -14,12 +14,12 @@ type AuthController interface {
 }
 
 type authController struct {
-	s services.AuthService
+	service services.AuthService
 }
 
-func NewAuthController(s services.AuthService) AuthController {
+func NewAuthController(service services.AuthService) AuthController {
 	return &authController{
-		s: s,
+		service: service,
 	}
 }
 
@@ -30,8 +30,17 @@ func (c *authController) Register(ctx *gin.Context) {
 		return
 	}
 
+	err := c.service.Register(registerDTO)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
 	ctx.JSON(200, gin.H{
-		"data": registerDTO,
+		"status":  200,
+		"data":    nil,
+		"error":   nil,
+		"message": "register successfully",
 	})
 }
 
