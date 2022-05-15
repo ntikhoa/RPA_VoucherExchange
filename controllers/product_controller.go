@@ -18,11 +18,11 @@ var (
 )
 
 type ProductController interface {
-	Create(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
-	FindAll(ctx *gin.Context)
-	FindByID(ctx *gin.Context)
+	CreateProduct(ctx *gin.Context)
+	UpdateProduct(ctx *gin.Context)
+	DeleteProduct(ctx *gin.Context)
+	FindAllProduct(ctx *gin.Context)
+	FindProductByID(ctx *gin.Context)
 
 	abortAndCheckError(ctx *gin.Context, err error)
 }
@@ -37,10 +37,10 @@ func NewProductController(productService services.ProductService) ProductControl
 	}
 }
 
-func (c *productController) Create(ctx *gin.Context) {
+func (c *productController) CreateProduct(ctx *gin.Context) {
 	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
 	product.ProviderID = globalProviderID
-	if err := c.productService.Create(product); err != nil {
+	if err := c.productService.CreateProduct(product); err != nil {
 		log.Println(err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -54,13 +54,13 @@ func (c *productController) Create(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) Update(ctx *gin.Context) {
+func (c *productController) UpdateProduct(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
 	product.Model.ID = productID
 	product.ProviderID = globalProviderID
-	if err := c.productService.Update(product); err != nil {
+	if err := c.productService.UpdateProduct(product); err != nil {
 		log.Println(err)
 		c.abortAndCheckError(ctx, err)
 		return
@@ -74,10 +74,10 @@ func (c *productController) Update(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) Delete(ctx *gin.Context) {
+func (c *productController) DeleteProduct(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	if err := c.productService.DeleteByID(productID, globalProviderID); err != nil {
+	if err := c.productService.DeleteProductByID(productID, globalProviderID); err != nil {
 		log.Println(err)
 		c.abortAndCheckError(ctx, err)
 		return
@@ -91,7 +91,7 @@ func (c *productController) Delete(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) FindAll(ctx *gin.Context) {
+func (c *productController) FindAllProduct(ctx *gin.Context) {
 	value := ctx.Request.URL.Query()
 	pageQuery := value["page"]
 	if len(pageQuery) != 1 {
@@ -111,7 +111,7 @@ func (c *productController) FindAll(ctx *gin.Context) {
 	page := int(pageConv)
 	perPage := 2
 
-	metadata, products, err := c.productService.FindAllWithPage(globalProviderID, page, perPage)
+	metadata, products, err := c.productService.FindAllProductWithPage(globalProviderID, page, perPage)
 	if err != nil {
 		log.Println(err)
 		c.abortAndCheckError(ctx, err)
@@ -129,10 +129,10 @@ func (c *productController) FindAll(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) FindByID(ctx *gin.Context) {
+func (c *productController) FindProductByID(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	product, err := c.productService.FindByID(productID, globalProviderID)
+	product, err := c.productService.FindProductByID(productID, globalProviderID)
 	if err != nil {
 		log.Println(err)
 		c.abortAndCheckError(ctx, err)

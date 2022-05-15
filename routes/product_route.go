@@ -21,29 +21,29 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	g.POST("",
 		middlewares.ValidateProductRequest(),
 		func(ctx *gin.Context) {
-			productController.Create(ctx)
+			productController.CreateProduct(ctx)
 		})
 
 	g.DELETE("/:id",
 		middlewares.GetIDFromURL(),
 		func(ctx *gin.Context) {
-			productController.Delete(ctx)
+			productController.DeleteProduct(ctx)
 		})
 
 	g.PUT("/:id",
 		middlewares.GetIDFromURL(),
 		middlewares.ValidateProductRequest(),
 		func(ctx *gin.Context) {
-			productController.Update(ctx)
+			productController.UpdateProduct(ctx)
 		})
 
 	g.GET("", func(ctx *gin.Context) {
-		productController.FindAll(ctx)
+		productController.FindAllProduct(ctx)
 	})
 
 	g.GET("/:id",
 		middlewares.GetIDFromURL(),
 		func(ctx *gin.Context) {
-			productController.FindByID(ctx)
+			productController.FindProductByID(ctx)
 		})
 }

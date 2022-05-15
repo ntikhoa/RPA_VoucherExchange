@@ -6,11 +6,11 @@ import (
 )
 
 type ProductRepo interface {
-	Create(product entities.Product) error
-	Update(product entities.Product) error
-	DeleteByID(productID uint) error
-	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
-	FindByID(productID uint) (entities.Product, error)
+	CreateProduct(product entities.Product) error
+	UpdateProduct(product entities.Product) error
+	DeleteProductByID(productID uint) error
+	FindAllProductWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
+	FindProductByID(productID uint) (entities.Product, error)
 	GetProductCount(providerID uint) (int64, error)
 }
 
@@ -24,22 +24,22 @@ func NewProductRepo(db *gorm.DB) ProductRepo {
 	}
 }
 
-func (repo *productRepo) Create(product entities.Product) error {
+func (repo *productRepo) CreateProduct(product entities.Product) error {
 	return repo.db.Create(&product).Error
 }
 
-func (repo *productRepo) Update(product entities.Product) error {
+func (repo *productRepo) UpdateProduct(product entities.Product) error {
 	return repo.db.Save(&product).Error
 }
 
-func (repo *productRepo) DeleteByID(productID uint) error {
+func (repo *productRepo) DeleteProductByID(productID uint) error {
 	return repo.db.
 		Unscoped().
 		Delete(&entities.Product{}, productID).
 		Error
 }
 
-func (repo *productRepo) FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error) {
+func (repo *productRepo) FindAllProductWithPage(providerID uint, page int, perPage int) ([]entities.Product, error) {
 	products := []entities.Product{}
 	tx := repo.db.
 		Where(&entities.Product{ProviderID: providerID}).
@@ -49,7 +49,7 @@ func (repo *productRepo) FindAllWithPage(providerID uint, page int, perPage int)
 	return products, tx.Error
 }
 
-func (repo *productRepo) FindByID(productID uint) (entities.Product, error) {
+func (repo *productRepo) FindProductByID(productID uint) (entities.Product, error) {
 	product := entities.Product{
 		Model: gorm.Model{
 			ID: productID,
