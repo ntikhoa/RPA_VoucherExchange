@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/RPA_VoucherExchange/configs"
-	custom_error "github.com/RPA_VoucherExchange/custom_error"
 	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -23,8 +22,6 @@ type ProductController interface {
 	DeleteProduct(ctx *gin.Context)
 	FindAllProduct(ctx *gin.Context)
 	FindProductByID(ctx *gin.Context)
-
-	abortAndCheckError(ctx *gin.Context, err error)
 }
 
 type productController struct {
@@ -62,7 +59,7 @@ func (c *productController) UpdateProduct(ctx *gin.Context) {
 	product.ProviderID = globalProviderID
 	if err := c.productService.UpdateProduct(product); err != nil {
 		log.Println(err)
-		c.abortAndCheckError(ctx, err)
+		abortCustomError(ctx, err)
 		return
 	}
 
@@ -79,7 +76,7 @@ func (c *productController) DeleteProduct(ctx *gin.Context) {
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	if err := c.productService.DeleteProductByID(productID, globalProviderID); err != nil {
 		log.Println(err)
-		c.abortAndCheckError(ctx, err)
+		abortCustomError(ctx, err)
 		return
 	}
 
@@ -114,7 +111,7 @@ func (c *productController) FindAllProduct(ctx *gin.Context) {
 	metadata, products, err := c.productService.FindAllProductWithPage(globalProviderID, page, perPage)
 	if err != nil {
 		log.Println(err)
-		c.abortAndCheckError(ctx, err)
+		abortCustomError(ctx, err)
 		return
 	}
 
@@ -135,7 +132,7 @@ func (c *productController) FindProductByID(ctx *gin.Context) {
 	product, err := c.productService.FindProductByID(productID, globalProviderID)
 	if err != nil {
 		log.Println(err)
-		c.abortAndCheckError(ctx, err)
+		abortCustomError(ctx, err)
 		return
 	}
 
@@ -147,19 +144,4 @@ func (c *productController) FindProductByID(ctx *gin.Context) {
 		"error":   nil,
 		"message": "Product found successfully.",
 	})
-}
-
-//check for custom error and abort with the coresponded message
-//use for checking custom message sent from the services layer
-func (c *productController) abortAndCheckError(ctx *gin.Context, err error) {
-	switch err.(type) {
-	case *custom_error.AuthorizedError:
-		ctx.AbortWithError(http.StatusForbidden, errors.New("you don't have permission to delete this data"))
-	case *custom_error.NotFoundError:
-		ctx.AbortWithError(http.StatusNotFound, errors.New("data does not exist"))
-	case *custom_error.ExhaustedError:
-		ctx.AbortWithError(http.StatusNotFound, errors.New("data exhausted, page number exceeds maximum pages"))
-	default:
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-	}
 }

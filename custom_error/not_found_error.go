@@ -1,7 +1,15 @@
 package custom_error
 
-type NotFoundError struct{}
+type NotFoundError struct {
+	message string `default:"Not Found"`
+}
 
-func (e *NotFoundError) Error() string {
-	return "data not found"
+func NewNotFoundError(message string) error {
+	return &ConflictError{
+		message: message,
+	}
+}
+
+func (e NotFoundError) Error() string {
+	return e.message
 }
