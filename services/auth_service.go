@@ -3,6 +3,8 @@ package services
 import (
 	"errors"
 
+	"github.com/RPA_VoucherExchange/constants"
+	"github.com/RPA_VoucherExchange/custom_error"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/repositories"
 	"golang.org/x/crypto/bcrypt"
@@ -28,24 +30,24 @@ func NewAuthService(employeeRepo repositories.EmployeeRepo, providerRepo reposit
 
 func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 	if registerDTO.Password != registerDTO.ConfirmedPassword {
-		return errors.New("confirmed password does not match")
+		return custom_error.NewBadRequestError(constants.CONFIRMED_PASSWORD_ERROR)
 	}
 
 	if _, err := s.providerRepo.FindProviderByID(registerDTO.ProviderID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("invalid provider id")
+			return custom_error.NewConflictError(constants.INVALID_PROVIDER_ID_ERROR)
 		}
 		return err
 	}
 
 	//employee exist
 	if _, err := s.employeeRepo.FindEmployeeByUsername(registerDTO.Username); err == nil {
-		return errors.New("username is already exist")
+		return custom_error.NewConflictError(constants.USERNAME_DUPLICATE_ERROR)
 	}
 
 	bytes, err := bcrypt.GenerateFromPassword([]byte(registerDTO.Password), 14)
 	if err != nil {
-		return errors.New("cannot hashed password")
+		return err
 	}
 
 	employee := registerDTO.ToEmployeeEntity()

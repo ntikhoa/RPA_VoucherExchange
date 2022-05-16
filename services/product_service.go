@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
 	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
@@ -38,13 +39,14 @@ func (s *productService) UpdateProduct(product entities.Product) error {
 	fetchedProduct, err := s.repo.FindProductByID(product.Model.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return &custom_error.NotFoundError{}
+			return custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
 		}
 		return err
 	}
 
 	if fetchedProduct.ProviderID != product.ProviderID {
-		return &custom_error.AuthorizedError{}
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
+		// return &custom_error.ForbiddenError{Message: constants.AUTHORIZE_ERROR}
 	}
 	return s.repo.UpdateProduct(product)
 }
@@ -59,7 +61,7 @@ func (s *productService) DeleteProductByID(productID uint, providerID uint) erro
 	}
 
 	if product.ProviderID != providerID {
-		return &custom_error.AuthorizedError{}
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
 	return s.repo.DeleteProductByID(productID)
 }
@@ -74,7 +76,7 @@ func (s *productService) FindAllProductWithPage(providerID uint, page int, perPa
 	d := float64(count) / float64(perPage)
 	totalPages := int(math.Ceil(d))
 	if page > totalPages {
-		return pagingMetadata, nil, &custom_error.ExhaustedError{}
+		return pagingMetadata, nil, custom_error.NewNotFoundError(constants.EXHAUSTED_ERROR)
 	}
 
 	pagingMetadata = viewmodel.PagingMetadata{
@@ -97,7 +99,7 @@ func (s *productService) FindProductByID(productID uint, providerID uint) (entit
 	}
 
 	if product.ProviderID != providerID {
-		return product, &custom_error.AuthorizedError{}
+		return product, custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
 
 	return product, nil
