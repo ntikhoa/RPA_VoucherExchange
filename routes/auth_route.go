@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/RPA_VoucherExchange/controllers"
+	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,7 @@ func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	controller := initAuthController(db)
 
 	g.POST("/register",
+		middlewares.ValidateRegisterRequest(),
 		func(ctx *gin.Context) {
 			controller.Register(ctx)
 		})
