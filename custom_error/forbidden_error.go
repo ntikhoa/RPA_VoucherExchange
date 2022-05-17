@@ -5,7 +5,7 @@ type ForbiddenError struct {
 }
 
 func NewForbiddenError(message string) error {
-	return &ConflictError{
+	return &ForbiddenError{
 		message: message,
 	}
 }
