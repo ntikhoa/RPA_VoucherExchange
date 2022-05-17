@@ -24,4 +24,10 @@ func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.Register(ctx)
 		})
+
+	g.POST("/login",
+		middlewares.ValidateLoginRequest(),
+		func(ctx *gin.Context) {
+			controller.Login(ctx)
+		})
 }

@@ -21,3 +21,17 @@ func ValidateRegisterRequest() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func ValidateLoginRequest() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		loginDTO := dto.LoginDTO{}
+		err := ctx.ShouldBind(&loginDTO)
+		if err != nil {
+			log.Println(err)
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		ctx.Set("login_key", loginDTO)
+		ctx.Next()
+	}
+}

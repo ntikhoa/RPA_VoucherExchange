@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
@@ -42,5 +43,20 @@ func (c *authController) Register(ctx *gin.Context) {
 }
 
 func (c *authController) Login(ctx *gin.Context) {
+	loginDTO := ctx.MustGet(configs.LOGIN_KEY).(dto.LoginDTO)
 
+	token, err := c.service.Login(loginDTO)
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status": 200,
+		"data": gin.H{
+			"token": token,
+		},
+		"error":   nil,
+		"message": "register successfully",
+	})
 }

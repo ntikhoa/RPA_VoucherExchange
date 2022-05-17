@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"log"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -13,7 +14,7 @@ import (
 
 type AuthService interface {
 	Register(registerDTO dto.RegisterDTO) error
-	Login()
+	Login(loginDTO dto.LoginDTO) (string, error)
 }
 
 type authService struct {
@@ -56,6 +57,17 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 	return s.employeeRepo.CreateEmployee(employee)
 }
 
-func (s *authService) Login() {
+func (s *authService) Login(loginDTO dto.LoginDTO) (string, error) {
+	employee, err := s.employeeRepo.FindEmployeeByUsername(loginDTO.Username)
+	if err != nil {
+		log.Println("username")
+		return "", errors.New("invalid username or password")
+	}
 
+	if err := bcrypt.CompareHashAndPassword([]byte(employee.HashedPassword), []byte(loginDTO.Password)); err != nil {
+		log.Println("password")
+		return "", errors.New("invalid username or password")
+	}
+
+	return GenerateToken(employee)
 }
