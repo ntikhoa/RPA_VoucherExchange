@@ -12,8 +12,9 @@ import (
 func initAuthController(db *gorm.DB) controllers.AuthController {
 	providerRepo := repositories.NewProviderRepo(db)
 	employeeRepo := repositories.NewEmployeeRepo(db)
-	services := services.NewAuthService(employeeRepo, providerRepo)
-	return controllers.NewAuthController(services)
+	authService := services.NewAuthService(employeeRepo, providerRepo)
+	jwtService := services.NewJWTService()
+	return controllers.NewAuthController(authService, jwtService)
 }
 
 func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
@@ -23,5 +24,11 @@ func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		middlewares.ValidateRegisterRequest(),
 		func(ctx *gin.Context) {
 			controller.Register(ctx)
+		})
+
+	g.POST("/login",
+		middlewares.ValidateLoginRequest(),
+		func(ctx *gin.Context) {
+			controller.Login(ctx)
 		})
 }

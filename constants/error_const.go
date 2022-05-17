@@ -7,4 +7,6 @@ const (
 	CONFIRMED_PASSWORD_ERROR  = "confirmed password does not match"
 	INVALID_PROVIDER_ID_ERROR = "invalid provider id"
 	USERNAME_DUPLICATE_ERROR  = "username is already exist"
+	CREDENTIAL_ERROR          = "invalid username or password"
+	INVALID_TOKEN_ERROR       = "invalid token"
 )

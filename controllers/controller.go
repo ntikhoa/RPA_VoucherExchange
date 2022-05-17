@@ -15,6 +15,9 @@ func abortCustomError(ctx *gin.Context, err error) {
 	case *custom_error.BadRequestError:
 		status = http.StatusBadRequest
 
+	case *custom_error.UnauthorizedError:
+		status = http.StatusUnauthorized
+
 	case *custom_error.ForbiddenError:
 		status = http.StatusForbidden
 

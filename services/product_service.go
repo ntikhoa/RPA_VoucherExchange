@@ -46,7 +46,6 @@ func (s *productService) UpdateProduct(product entities.Product) error {
 
 	if fetchedProduct.ProviderID != product.ProviderID {
 		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
-		// return &custom_error.ForbiddenError{Message: constants.AUTHORIZE_ERROR}
 	}
 	return s.repo.UpdateProduct(product)
 }

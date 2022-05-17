@@ -42,6 +42,8 @@ func main() {
 		{
 			routes.AuthRoutes(apiAuthRoutes, db)
 		}
+
+		apiRoutesV1.GET("/test", middlewares.AuthorizeJwt())
 	}
 
 	server.Run(":" + port)

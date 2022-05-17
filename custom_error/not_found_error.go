@@ -5,7 +5,7 @@ type NotFoundError struct {
 }
 
 func NewNotFoundError(message string) error {
-	return &ConflictError{
+	return &NotFoundError{
 		message: message,
 	}
 }

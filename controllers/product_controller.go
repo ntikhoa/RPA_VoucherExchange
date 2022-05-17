@@ -12,10 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	globalProviderID = uint(1)
-)
-
 type ProductController interface {
 	CreateProduct(ctx *gin.Context)
 	UpdateProduct(ctx *gin.Context)
@@ -36,7 +32,9 @@ func NewProductController(productService services.ProductService) ProductControl
 
 func (c *productController) CreateProduct(ctx *gin.Context) {
 	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
-	product.ProviderID = globalProviderID
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+
+	product.ProviderID = providerID
 	if err := c.productService.CreateProduct(product); err != nil {
 		log.Println(err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -54,9 +52,10 @@ func (c *productController) CreateProduct(ctx *gin.Context) {
 func (c *productController) UpdateProduct(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
+	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product) //from product validation middlewares
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	product.Model.ID = productID
-	product.ProviderID = globalProviderID
+	product.ProviderID = providerID
 	if err := c.productService.UpdateProduct(product); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -74,7 +73,8 @@ func (c *productController) UpdateProduct(ctx *gin.Context) {
 func (c *productController) DeleteProduct(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	if err := c.productService.DeleteProductByID(productID, globalProviderID); err != nil {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	if err := c.productService.DeleteProductByID(productID, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
@@ -108,7 +108,8 @@ func (c *productController) FindAllProduct(ctx *gin.Context) {
 	page := int(pageConv)
 	perPage := 2
 
-	metadata, products, err := c.productService.FindAllProductWithPage(globalProviderID, page, perPage)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	metadata, products, err := c.productService.FindAllProductWithPage(providerID, page, perPage)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -129,7 +130,8 @@ func (c *productController) FindAllProduct(ctx *gin.Context) {
 func (c *productController) FindProductByID(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	product, err := c.productService.FindProductByID(productID, globalProviderID)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	product, err := c.productService.FindProductByID(productID, providerID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
