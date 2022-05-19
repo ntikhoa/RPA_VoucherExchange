@@ -3,7 +3,7 @@ package dto
 import "github.com/RPA_VoucherExchange/entities"
 
 type ProductDTO struct {
-	ProductName string `form:"product_name" binding:"required"`
+	ProductName string `form:"product_name" json:"product_name" binding:"required"`
 }
 
 func (dto ProductDTO) ToEntity() entities.Product {
