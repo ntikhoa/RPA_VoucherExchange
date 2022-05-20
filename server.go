@@ -2,10 +2,12 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +27,15 @@ func main() {
 	// conn.Init()
 	db := conn.GetDB()
 	// utils.Seeding(db)
+
+	server.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE", "UPDATE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
