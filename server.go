@@ -32,7 +32,7 @@ func main() {
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE", "UPDATE"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
-		ExposeHeaders:    []string{"Content-Length"},
+		ExposeHeaders:    []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
