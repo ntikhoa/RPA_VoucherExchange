@@ -26,13 +26,7 @@ func main() {
 	db := conn.GetDB()
 	// utils.Seeding(db)
 
-	// server.Use(cors.New(cors.Config{
-	// 	AllowOrigins: []string{"*"},
-	// 	AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "DELETE", "UPDATE"},
-	// 	AllowHeaders: []string{"Content-Type", "Authorization", "Origin"},
-	// }))
-
-	// server.Use(middlewares.SetHeader())
+	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
 
 	apiRoutesV1 := server.Group("/api/v1")
