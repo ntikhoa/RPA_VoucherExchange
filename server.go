@@ -29,12 +29,11 @@ func main() {
 	// utils.Seeding(db)
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"POST", "GET", "OPTIONS", "PUT", "DELETE", "UPDATE"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
-		ExposeHeaders:    []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		AllowOrigins:  []string{"*"},
+		AllowMethods:  []string{"POST", "GET", "OPTIONS", "PUT", "DELETE", "UPDATE"},
+		AllowHeaders:  []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
+		ExposeHeaders: []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
+		MaxAge:        12 * time.Hour,
 	}))
 
 	// server.Use(middlewares.SetHeader())
