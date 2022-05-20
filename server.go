@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"time"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
@@ -29,11 +28,9 @@ func main() {
 	// utils.Seeding(db)
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"*"},
-		AllowMethods:  []string{"POST", "GET", "OPTIONS", "PUT", "DELETE", "UPDATE"},
-		AllowHeaders:  []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
-		ExposeHeaders: []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "X-Max"},
-		MaxAge:        12 * time.Hour,
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "DELETE", "UPDATE"},
+		AllowHeaders: []string{"Content-Type", "Authorization"},
 	}))
 
 	// server.Use(middlewares.SetHeader())
