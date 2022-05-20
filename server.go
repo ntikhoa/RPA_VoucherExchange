@@ -37,7 +37,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	server.Use(middlewares.SetHeader())
+	// server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
 
 	apiRoutesV1 := server.Group("/api/v1")
