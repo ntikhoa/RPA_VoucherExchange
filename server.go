@@ -6,7 +6,6 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,11 +26,11 @@ func main() {
 	db := conn.GetDB()
 	// utils.Seeding(db)
 
-	server.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "DELETE", "UPDATE"},
-		AllowHeaders: []string{"Content-Type", "Authorization", "Origin"},
-	}))
+	// server.Use(cors.New(cors.Config{
+	// 	AllowOrigins: []string{"*"},
+	// 	AllowMethods: []string{"OPTIONS", "GET", "POST", "PUT", "DELETE", "UPDATE"},
+	// 	AllowHeaders: []string{"Content-Type", "Authorization", "Origin"},
+	// }))
 
 	// server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
