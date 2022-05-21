@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"math"
+	"strconv"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -19,6 +20,7 @@ type ProductService interface {
 	FindAllProductWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
 	FindProductByID(productID uint, providerID uint) (entities.Product, error)
 	GetProductCount(providerID uint) (int64, error)
+	CheckProductsExist(productIDs []uint) error
 }
 
 type productService struct {
@@ -106,4 +108,47 @@ func (s *productService) FindProductByID(productID uint, providerID uint) (entit
 
 func (s *productService) GetProductCount(providerID uint) (int64, error) {
 	return s.repo.GetProductCount(providerID)
+}
+
+func (s *productService) CheckProductsExist(productIDs []uint) error {
+	fetchedID, err := s.repo.CheckProductsExist(productIDs)
+	if err != nil {
+		return errors.New("cannot fetch products")
+	}
+
+	invalidProductIDs := extractInvalidIDs(fetchedID, productIDs)
+
+	if len(invalidProductIDs) > 0 {
+		return errors.New("invalid product ids: " + convertToStringError(invalidProductIDs))
+	}
+	return nil
+}
+
+func extractInvalidIDs(fetchedIDs []uint, requestIDs []uint) []uint {
+	invalidProductIDs := []uint{}
+	mapFetchedID := make(map[uint]interface{}, len(fetchedIDs))
+	for _, x := range fetchedIDs {
+		mapFetchedID[x] = nil
+	}
+
+	for _, id := range requestIDs {
+		if _, ok := mapFetchedID[id]; !ok {
+			invalidProductIDs = append(invalidProductIDs, id)
+		}
+	}
+	return invalidProductIDs
+}
+
+func convertToStringError(invalidIDs []uint) string {
+	var invalidStr string
+	if len(invalidIDs) > 0 {
+		invalidStr = strconv.FormatUint(uint64(invalidIDs[0]), 10)
+		for i, id := range invalidIDs {
+			if i == 0 {
+				continue
+			}
+			invalidStr += ", " + strconv.FormatUint(uint64(id), 10)
+		}
+	}
+	return invalidStr
 }

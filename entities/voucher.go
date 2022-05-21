@@ -6,6 +6,7 @@ import (
 
 type Voucher struct {
 	gorm.Model
+	Name          string     `gorm:"type:varchar(255)"`
 	Description   string     `gorm:"type:varchar(255)"`
 	TotalPriceMin int        `gorm:"not null"`
 	TotalPriceMax int        `gorm:"not null"`
