@@ -11,7 +11,8 @@ import (
 func initVoucherController(db *gorm.DB) controllers.VoucherController {
 	productRepo := repositories.NewProductRepo(db)
 	productService := services.NewProductService(productRepo)
-	voucherService := services.NewVoucherService()
+	voucherRepo := repositories.NewVoucherRepo(db)
+	voucherService := services.NewVoucherService(voucherRepo)
 	return controllers.NewVoucherController(voucherService, productService)
 }
 

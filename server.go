@@ -45,6 +45,7 @@ func main() {
 
 		apiVoucherRoutes := apiRoutesV1.Group("/vouchers")
 		{
+			apiVoucherRoutes.Use(middlewares.AuthorizeJwt())
 			routes.VoucherRoutes(apiVoucherRoutes, db)
 		}
 	}

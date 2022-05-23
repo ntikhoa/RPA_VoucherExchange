@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,13 @@ func (c *voucherController) CreateVoucher(ctx *gin.Context) {
 	err = c.productService.CheckProductsExist(productIDs)
 	if err != nil {
 		ctx.AbortWithError(http.StatusConflict, err)
+		return
+	}
+
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	err = c.voucherService.CreateVoucher(voucherDTO, providerID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
