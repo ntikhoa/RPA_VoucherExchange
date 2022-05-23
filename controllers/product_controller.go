@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/RPA_VoucherExchange/configs"
-	"github.com/RPA_VoucherExchange/entities"
+	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
 )
@@ -31,11 +31,10 @@ func NewProductController(productService services.ProductService) ProductControl
 }
 
 func (c *productController) CreateProduct(ctx *gin.Context) {
-	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product)
+	productDTO := ctx.MustGet(configs.PRODUCT_DTO_KEY).(dto.ProductDTO)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	product.ProviderID = providerID
-	if err := c.productService.CreateProduct(product); err != nil {
+	if err := c.productService.CreateProduct(productDTO, providerID); err != nil {
 		log.Println(err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -51,12 +50,11 @@ func (c *productController) CreateProduct(ctx *gin.Context) {
 
 func (c *productController) UpdateProduct(ctx *gin.Context) {
 
+	productDTO := ctx.MustGet(configs.PRODUCT_DTO_KEY).(dto.ProductDTO) //from product validation middlewares
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
-	product := ctx.MustGet(configs.PRODUCT_KEY).(entities.Product) //from product validation middlewares
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	product.Model.ID = productID
-	product.ProviderID = providerID
-	if err := c.productService.UpdateProduct(product); err != nil {
+
+	if err := c.productService.UpdateProduct(productDTO, providerID, productID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return

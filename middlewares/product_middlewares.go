@@ -17,8 +17,7 @@ func ValidateProductRequest() gin.HandlerFunc {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		product := productDTO.ToEntity()
-		ctx.Set(configs.PRODUCT_KEY, product)
+		ctx.Set(configs.PRODUCT_DTO_KEY, productDTO)
 		ctx.Next()
 	}
 }

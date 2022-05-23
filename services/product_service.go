@@ -7,6 +7,7 @@ import (
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
+	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
@@ -14,8 +15,8 @@ import (
 )
 
 type ProductService interface {
-	CreateProduct(product entities.Product) error
-	UpdateProduct(product entities.Product) error
+	CreateProduct(productDTO dto.ProductDTO, providerID uint) error
+	UpdateProduct(productDTO dto.ProductDTO, providerID uint, productID uint) error
 	DeleteProductByID(productID uint, providerID uint) error
 	FindAllProductWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
 	FindProductByID(productID uint, providerID uint) (entities.Product, error)
@@ -33,11 +34,14 @@ func NewProductService(repo repositories.ProductRepo) ProductService {
 	}
 }
 
-func (s *productService) CreateProduct(product entities.Product) error {
+func (s *productService) CreateProduct(productDTO dto.ProductDTO, providerID uint) error {
+	product := productDTO.ToEntity(providerID)
 	return s.repo.CreateProduct(product)
 }
 
-func (s *productService) UpdateProduct(product entities.Product) error {
+func (s *productService) UpdateProduct(productDTO dto.ProductDTO, providerID uint, productID uint) error {
+	product := productDTO.ToEntity(providerID)
+	product.Model.ID = productID
 	fetchedProduct, err := s.repo.FindProductByID(product.Model.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
