@@ -65,6 +65,7 @@ func (c *authController) Login(ctx *gin.Context) {
 		"status": 200,
 		"data": gin.H{
 			"token": token,
+			"name":  employee.Name,
 		},
 		"error":   nil,
 		"message": "register successfully",
