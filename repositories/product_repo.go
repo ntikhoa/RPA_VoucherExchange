@@ -12,6 +12,8 @@ type ProductRepo interface {
 	FindAllProductWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
 	FindProductByID(productID uint) (entities.Product, error)
 	GetProductCount(providerID uint) (int64, error)
+
+	CheckProductsExist(productIDs []uint) ([]uint, error)
 }
 
 type productRepo struct {
@@ -68,4 +70,20 @@ func (repo *productRepo) GetProductCount(providerID uint) (int64, error) {
 		Error
 
 	return count, err
+}
+
+type productID struct {
+	ID uint
+}
+
+func (repo *productRepo) CheckProductsExist(productIDs []uint) ([]uint, error) {
+	var IDs []productID
+	tx := repo.db.Model(&entities.Product{}).Where("id IN ?", productIDs).Find(&IDs)
+
+	ids := []uint{}
+
+	for _, id := range IDs {
+		ids = append(ids, id.ID)
+	}
+	return ids, tx.Error
 }

@@ -11,5 +11,5 @@ type Receipt struct {
 	StatusID        uint
 	Status          ReceiptStatus `gorm:"foreignKey:StatusID"`
 	ReceiptItem     []ReceiptItem `gorm:"foreignKey:ReceiptID"`
-	Voucher         []*Voucher    `gorm:"many2many:receipt_voucher"`
+	Voucher         []Voucher     `gorm:"many2many:receipt_voucher"`
 }

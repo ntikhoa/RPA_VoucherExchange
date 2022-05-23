@@ -27,9 +27,6 @@ func (repo *employeeRepo) CreateEmployee(employee entities.Employee) error {
 func (repo *employeeRepo) FindEmployeeByUsername(username string) (entities.Employee, error) {
 	employee := entities.Employee{}
 	err := repo.db.
-		// Model(&entities.Employee{
-		// 	Username: username,
-		// }).
 		Where("username = ?", username).
 		First(&employee).
 		Error
