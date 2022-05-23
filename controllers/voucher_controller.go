@@ -10,7 +10,7 @@ import (
 )
 
 type VoucherController interface {
-	CreateVoucher(ctx *gin.Context)
+	Create(ctx *gin.Context)
 }
 
 type voucherController struct {
@@ -26,7 +26,7 @@ func NewVoucherController(voucherService services.VoucherService,
 	}
 }
 
-func (c *voucherController) CreateVoucher(ctx *gin.Context) {
+func (c *voucherController) Create(ctx *gin.Context) {
 	voucherDTO := dto.VoucherDTO{}
 	err := ctx.ShouldBind(&voucherDTO)
 	if err != nil {
@@ -34,15 +34,15 @@ func (c *voucherController) CreateVoucher(ctx *gin.Context) {
 		return
 	}
 
-	productIDs := voucherDTO.GetVoucherProducts()
-	err = c.productService.CheckProductsExist(productIDs)
+	productIDs := voucherDTO.GetProductIDs()
+	err = c.productService.CheckExistence(productIDs)
 	if err != nil {
 		ctx.AbortWithError(http.StatusConflict, err)
 		return
 	}
 
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	err = c.voucherService.CreateVoucher(voucherDTO, providerID)
+	err = c.voucherService.Create(voucherDTO, providerID)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return

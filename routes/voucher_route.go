@@ -21,6 +21,6 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 
 	g.POST("",
 		func(ctx *gin.Context) {
-			controller.CreateVoucher(ctx)
+			controller.Create(ctx)
 		})
 }

@@ -34,8 +34,6 @@ func AuthorizeJwt() gin.HandlerFunc {
 			claims := token.Claims.(jwt.MapClaims)
 			log.Println("Claims[EmployeeID]: ", claims["employee_id"])
 			log.Println("Claims[ProviderID]: ", claims["provider_id"])
-			log.Println("Claims[Issuer]: ", claims["iss"])
-			log.Println("Claims[IssuedAt]: ", claims["iat"])
 			log.Println("Claims[ExpiresAt]: ", claims["exp"])
 
 			providerIDStr := claims["provider_id"].(string)

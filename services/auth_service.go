@@ -36,7 +36,7 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 		return custom_error.NewBadRequestError(constants.CONFIRMED_PASSWORD_ERROR)
 	}
 
-	if _, err := s.providerRepo.FindProviderByID(registerDTO.ProviderID); err != nil {
+	if _, err := s.providerRepo.FindByID(registerDTO.ProviderID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Println(err)
 			return custom_error.NewConflictError(constants.INVALID_PROVIDER_ID_ERROR)
@@ -45,7 +45,7 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 	}
 
 	//employee exist
-	if _, err := s.employeeRepo.FindEmployeeByUsername(registerDTO.Username); err == nil {
+	if _, err := s.employeeRepo.FindByUsername(registerDTO.Username); err == nil {
 		log.Println(err)
 		return custom_error.NewConflictError(constants.USERNAME_DUPLICATE_ERROR)
 	}
@@ -55,14 +55,14 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 		return err
 	}
 
-	employee := registerDTO.ToEmployeeEntity()
+	employee := registerDTO.ToEntity()
 	employee.HashedPassword = string(bytes)
 
-	return s.employeeRepo.CreateEmployee(employee)
+	return s.employeeRepo.Create(employee)
 }
 
 func (s *authService) Login(loginDTO dto.LoginDTO) (entities.Employee, error) {
-	employee, err := s.employeeRepo.FindEmployeeByUsername(loginDTO.Username)
+	employee, err := s.employeeRepo.FindByUsername(loginDTO.Username)
 	if err != nil {
 		log.Println("username")
 		return employee, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)

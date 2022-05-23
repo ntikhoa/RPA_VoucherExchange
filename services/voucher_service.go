@@ -6,7 +6,7 @@ import (
 )
 
 type VoucherService interface {
-	CreateVoucher(voucherDTO dto.VoucherDTO, providerID uint) error
+	Create(voucherDTO dto.VoucherDTO, providerID uint) error
 }
 
 type voucherService struct {
@@ -19,8 +19,8 @@ func NewVoucherService(voucherRepo repositories.VoucherRepo) VoucherService {
 	}
 }
 
-func (s *voucherService) CreateVoucher(voucherDTO dto.VoucherDTO, providerID uint) error {
+func (s *voucherService) Create(voucherDTO dto.VoucherDTO, providerID uint) error {
 	voucher := voucherDTO.ToEntity(providerID)
 
-	return s.voucherRepo.CreateVoucher(voucher)
+	return s.voucherRepo.Create(voucher)
 }

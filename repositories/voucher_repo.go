@@ -6,7 +6,7 @@ import (
 )
 
 type VoucherRepo interface {
-	CreateVoucher(voucher entities.Voucher) error
+	Create(voucher entities.Voucher) error
 }
 
 type voucherRepo struct {
@@ -19,6 +19,6 @@ func NewVoucherRepo(db *gorm.DB) VoucherRepo {
 	}
 }
 
-func (r *voucherRepo) CreateVoucher(voucher entities.Voucher) error {
+func (r *voucherRepo) Create(voucher entities.Voucher) error {
 	return r.db.Create(&voucher).Error
 }

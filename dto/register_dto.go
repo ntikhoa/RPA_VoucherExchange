@@ -10,7 +10,7 @@ type RegisterDTO struct {
 	ProviderID        uint   `form:"provider_id" json:"provider_id" binding:"required"`
 }
 
-func (dto RegisterDTO) ToEmployeeEntity() entities.Employee {
+func (dto RegisterDTO) ToEntity() entities.Employee {
 	return entities.Employee{
 		Username:   dto.Username,
 		Name:       dto.Name,
