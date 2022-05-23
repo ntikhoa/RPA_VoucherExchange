@@ -14,7 +14,7 @@ type VoucherDTO struct {
 	Gift              []string            `json:"gifts" binding:"required"`
 }
 
-func (dto VoucherDTO) GetVoucherProducts() []uint {
+func (dto VoucherDTO) GetProductIDs() []uint {
 	var productIDs []uint
 	for _, p := range dto.VoucherProductDTO {
 		productIDs = append(productIDs, p.ProductID)

@@ -6,7 +6,7 @@ import (
 )
 
 type ProviderRepo interface {
-	FindProviderByID(providerID uint) (entities.Provider, error)
+	FindByID(providerID uint) (entities.Provider, error)
 }
 
 type providerRepo struct {
@@ -19,7 +19,7 @@ func NewProviderRepo(db *gorm.DB) ProviderRepo {
 	}
 }
 
-func (repo *providerRepo) FindProviderByID(providerID uint) (entities.Provider, error) {
+func (repo *providerRepo) FindByID(providerID uint) (entities.Provider, error) {
 	provider := entities.Provider{
 		Model: gorm.Model{
 			ID: providerID,

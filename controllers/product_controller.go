@@ -13,11 +13,11 @@ import (
 )
 
 type ProductController interface {
-	CreateProduct(ctx *gin.Context)
-	UpdateProduct(ctx *gin.Context)
-	DeleteProduct(ctx *gin.Context)
-	FindAllProduct(ctx *gin.Context)
-	FindProductByID(ctx *gin.Context)
+	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+	FindAll(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type productController struct {
@@ -30,11 +30,11 @@ func NewProductController(productService services.ProductService) ProductControl
 	}
 }
 
-func (c *productController) CreateProduct(ctx *gin.Context) {
+func (c *productController) Create(ctx *gin.Context) {
 	productDTO := ctx.MustGet(configs.PRODUCT_DTO_KEY).(dto.ProductDTO)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	if err := c.productService.CreateProduct(productDTO, providerID); err != nil {
+	if err := c.productService.Create(productDTO, providerID); err != nil {
 		log.Println(err)
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -48,13 +48,13 @@ func (c *productController) CreateProduct(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) UpdateProduct(ctx *gin.Context) {
+func (c *productController) Update(ctx *gin.Context) {
 
 	productDTO := ctx.MustGet(configs.PRODUCT_DTO_KEY).(dto.ProductDTO) //from product validation middlewares
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	if err := c.productService.UpdateProduct(productDTO, providerID, productID); err != nil {
+	if err := c.productService.Update(productDTO, providerID, productID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
@@ -68,11 +68,11 @@ func (c *productController) UpdateProduct(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) DeleteProduct(ctx *gin.Context) {
+func (c *productController) Delete(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	if err := c.productService.DeleteProductByID(productID, providerID); err != nil {
+	if err := c.productService.DeleteByID(productID, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
@@ -86,7 +86,7 @@ func (c *productController) DeleteProduct(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) FindAllProduct(ctx *gin.Context) {
+func (c *productController) FindAll(ctx *gin.Context) {
 	value := ctx.Request.URL.Query()
 	pageQuery := value["page"]
 	if len(pageQuery) != 1 {
@@ -107,7 +107,7 @@ func (c *productController) FindAllProduct(ctx *gin.Context) {
 	perPage := 2
 
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	metadata, products, err := c.productService.FindAllProductWithPage(providerID, page, perPage)
+	metadata, products, err := c.productService.FindAllWithPage(providerID, page, perPage)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -125,11 +125,11 @@ func (c *productController) FindAllProduct(ctx *gin.Context) {
 	})
 }
 
-func (c *productController) FindProductByID(ctx *gin.Context) {
+func (c *productController) FindByID(ctx *gin.Context) {
 
 	productID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	product, err := c.productService.FindProductByID(productID, providerID)
+	product, err := c.productService.FindByID(productID, providerID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)

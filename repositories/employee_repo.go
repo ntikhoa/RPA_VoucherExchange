@@ -6,8 +6,8 @@ import (
 )
 
 type EmployeeRepo interface {
-	CreateEmployee(employee entities.Employee) error
-	FindEmployeeByUsername(username string) (entities.Employee, error)
+	Create(employee entities.Employee) error
+	FindByUsername(username string) (entities.Employee, error)
 }
 
 type employeeRepo struct {
@@ -20,11 +20,11 @@ func NewEmployeeRepo(db *gorm.DB) EmployeeRepo {
 	}
 }
 
-func (repo *employeeRepo) CreateEmployee(employee entities.Employee) error {
+func (repo *employeeRepo) Create(employee entities.Employee) error {
 	return repo.db.Create(&employee).Error
 }
 
-func (repo *employeeRepo) FindEmployeeByUsername(username string) (entities.Employee, error) {
+func (repo *employeeRepo) FindByUsername(username string) (entities.Employee, error) {
 	employee := entities.Employee{}
 	err := repo.db.
 		Where("username = ?", username).
