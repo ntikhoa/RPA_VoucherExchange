@@ -30,23 +30,16 @@ func NewVoucherController(voucherService services.VoucherService,
 }
 
 func (c *voucherController) Create(ctx *gin.Context) {
-	voucherDTO := dto.VoucherDTO{}
-	err := ctx.ShouldBind(&voucherDTO)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
+	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
 
 	productIDs := voucherDTO.GetProductIDs()
-	err = c.productService.CheckExistence(productIDs)
-	if err != nil {
+	if err := c.productService.CheckExistence(productIDs); err != nil {
 		ctx.AbortWithError(http.StatusConflict, err)
 		return
 	}
 
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	err = c.voucherService.Create(voucherDTO, providerID)
-	if err != nil {
+	if err := c.voucherService.Create(voucherDTO, providerID); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

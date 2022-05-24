@@ -19,7 +19,7 @@ type VoucherService interface {
 	FindAllWithPage(
 		providerID uint,
 		page int,
-		perPage int) (viewmodel.PagingMetadata, []entities.Voucher, error)
+		perPage int) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error)
 }
 
 type voucherService struct {
@@ -41,7 +41,7 @@ func (s *voucherService) FindByID(voucherID uint, providerID uint) (entities.Vou
 	voucher, err := s.voucherRepo.FindByID(voucherID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return voucher, &custom_error.NotFoundError{}
+			return voucher, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
 		}
 		return voucher, err
 	}
@@ -50,14 +50,14 @@ func (s *voucherService) FindByID(voucherID uint, providerID uint) (entities.Vou
 		return voucher, custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
 
-	return s.voucherRepo.FindByID(voucherID)
+	return voucher, nil
 }
 
 func (s *voucherService) FindAllWithPage(
 	providerID uint,
 	page int,
 	perPage int,
-) (viewmodel.PagingMetadata, []entities.Voucher, error) {
+) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error) {
 	var pagingMetadata viewmodel.PagingMetadata
 
 	count, err := s.voucherRepo.Count(providerID)

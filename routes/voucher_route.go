@@ -21,6 +21,7 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	controller := initVoucherController(db)
 
 	g.POST("",
+		middlewares.ValidateVoucherRequest(),
 		func(ctx *gin.Context) {
 			controller.Create(ctx)
 		})
