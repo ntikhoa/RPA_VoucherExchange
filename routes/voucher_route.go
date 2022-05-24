@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/RPA_VoucherExchange/controllers"
+	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -22,5 +23,11 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	g.POST("",
 		func(ctx *gin.Context) {
 			controller.Create(ctx)
+		})
+
+	g.GET(":id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			controller.FindByID(ctx)
 		})
 }

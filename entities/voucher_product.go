@@ -7,11 +7,10 @@ import (
 )
 
 type VoucherProduct struct {
-	VoucherID   uint    `gorm:"primaryKey"`
-	ProductID   uint    `gorm:"primaryKey"`
-	Voucher     Voucher `gorm:"foreignKey:VoucherID"`
-	QuantityMin uint    `gorm:"not null"`
-	QuantityMax uint    `gorm:"not null"`
+	VoucherID   uint `gorm:"primaryKey"`
+	ProductID   uint `gorm:"primaryKey"`
+	QuantityMin uint `gorm:"not null"`
+	QuantityMax uint `gorm:"not null"`
 	CreatedAt   time.Time
 	DeletedAt   gorm.DeletedAt
 }

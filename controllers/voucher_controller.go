@@ -11,6 +11,7 @@ import (
 
 type VoucherController interface {
 	Create(ctx *gin.Context)
+	FindByID(ctx *gin.Context)
 }
 
 type voucherController struct {
@@ -49,6 +50,26 @@ func (c *voucherController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": voucherDTO,
+		"status":  200,
+		"data":    nil,
+		"error":   nil,
+		"message": "Voucher created successfully.",
+	})
+}
+
+func (c *voucherController) FindByID(ctx *gin.Context) {
+	voucherID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	voucher, err := c.voucherService.FindByID(voucherID, providerID)
+	if err != nil {
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  200,
+		"data":    voucher,
+		"error":   nil,
+		"message": "Voucher found successfully.",
 	})
 }
