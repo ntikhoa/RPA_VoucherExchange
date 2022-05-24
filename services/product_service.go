@@ -74,7 +74,7 @@ func (s *productService) DeleteByID(productID uint, providerID uint) error {
 func (s *productService) FindAllWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error) {
 	pagingMetadata := viewmodel.PagingMetadata{}
 
-	count, err := s.repo.GetCount(providerID)
+	count, err := s.repo.Count(providerID)
 	if err != nil {
 		return pagingMetadata, nil, err
 	}
@@ -98,7 +98,7 @@ func (s *productService) FindByID(productID uint, providerID uint) (entities.Pro
 	product, err := s.repo.FindByID(productID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return product, &custom_error.NotFoundError{}
+			return product, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
 		}
 		return product, err
 	}
@@ -111,7 +111,7 @@ func (s *productService) FindByID(productID uint, providerID uint) (entities.Pro
 }
 
 func (s *productService) GetCount(providerID uint) (int64, error) {
-	return s.repo.GetCount(providerID)
+	return s.repo.Count(providerID)
 }
 
 func (s *productService) CheckExistence(productIDs []uint) error {

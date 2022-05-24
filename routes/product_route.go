@@ -37,9 +37,11 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 			productController.Update(ctx)
 		})
 
-	g.GET("", func(ctx *gin.Context) {
-		productController.FindAll(ctx)
-	})
+	g.GET("",
+		middlewares.GetPageFromURL(),
+		func(ctx *gin.Context) {
+			productController.FindAll(ctx)
+		})
 
 	g.GET("/:id",
 		middlewares.GetIDFromURL(),
