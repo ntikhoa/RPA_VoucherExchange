@@ -117,13 +117,14 @@ func (s *productService) GetCount(providerID uint) (int64, error) {
 func (s *productService) CheckExistence(productIDs []uint) error {
 	fetchedID, err := s.repo.CheckExistence(productIDs)
 	if err != nil {
-		return errors.New("cannot fetch products")
+		return err
 	}
 
 	invalidProductIDs := extractInvalidIDs(fetchedID, productIDs)
 
 	if len(invalidProductIDs) > 0 {
-		return errors.New("invalid product ids: " + convertToStringError(invalidProductIDs))
+		invalidIDstr := convertToStringError(invalidProductIDs)
+		return custom_error.NewConflictError("invalid product ids: " + invalidIDstr)
 	}
 	return nil
 }
