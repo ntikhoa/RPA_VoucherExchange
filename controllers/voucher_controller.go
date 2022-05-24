@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/RPA_VoucherExchange/configs"
@@ -12,6 +13,7 @@ import (
 type VoucherController interface {
 	Create(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	FindAll(ctx *gin.Context)
 }
 
 type voucherController struct {
@@ -62,6 +64,7 @@ func (c *voucherController) FindByID(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	voucher, err := c.voucherService.FindByID(voucherID, providerID)
 	if err != nil {
+		log.Println(err)
 		abortCustomError(ctx, err)
 		return
 	}
@@ -69,6 +72,29 @@ func (c *voucherController) FindByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  200,
 		"data":    voucher,
+		"error":   nil,
+		"message": "Voucher found successfully.",
+	})
+}
+
+func (c *voucherController) FindAll(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	page := ctx.MustGet(configs.PAGE_QUERY_KEY).(int)
+	perPage := 2
+
+	metadata, vouchers, err := c.voucherService.FindAllWithPage(providerID, page, perPage)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"status": 200,
+		"data": gin.H{
+			"metadata": metadata,
+			"vouchers": vouchers,
+		},
 		"error":   nil,
 		"message": "Voucher found successfully.",
 	})

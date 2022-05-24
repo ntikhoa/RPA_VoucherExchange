@@ -30,4 +30,10 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.FindByID(ctx)
 		})
+
+	g.GET("",
+		middlewares.GetPageFromURL(),
+		func(ctx *gin.Context) {
+			controller.FindAll(ctx)
+		})
 }
