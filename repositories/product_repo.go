@@ -12,7 +12,7 @@ type ProductRepo interface {
 	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
 	FindByID(productID uint) (entities.Product, error)
 
-	GetCount(providerID uint) (int64, error)
+	Count(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) ([]uint, error)
 }
 
@@ -62,7 +62,7 @@ func (repo *productRepo) FindByID(productID uint) (entities.Product, error) {
 	return product, err
 }
 
-func (repo *productRepo) GetCount(providerID uint) (int64, error) {
+func (repo *productRepo) Count(providerID uint) (int64, error) {
 	var count int64
 	err := repo.db.
 		Model(&entities.Product{ProviderID: providerID}).
