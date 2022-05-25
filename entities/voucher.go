@@ -13,7 +13,7 @@ type Voucher struct {
 	Total           uint             `gorm:"not null"`
 	Remaining       uint             `gorm:"not null"`
 	Published       bool             `gorm:"not null"`
-	VoucherProducts []VoucherProduct `gorm:"foreignKey:VoucherID"`
-	Gifts           []Gift           `gorm:"foreignKey:VoucherID"`
+	VoucherProducts []VoucherProduct `gorm:"foreignKey:VoucherID;constraint:OnDelete:CASCADE"`
+	Gifts           []Gift           `gorm:"foreignKey:VoucherID;constraint:OnDelete:CASCADE"`
 	ProviderID      uint             `json:"-"`
 }

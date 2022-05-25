@@ -18,7 +18,10 @@ type ProductService interface {
 	Create(productDTO dto.ProductDTO, providerID uint) error
 	Update(productDTO dto.ProductDTO, providerID uint, productID uint) error
 	DeleteByID(productID uint, providerID uint) error
-	FindAllWithPage(providerID uint, page int, perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
+	FindAllWithPage(
+		providerID uint,
+		page int,
+		perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
 	FindByID(productID uint, providerID uint) (entities.Product, error)
 	GetCount(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) error

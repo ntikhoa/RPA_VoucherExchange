@@ -20,6 +20,8 @@ type VoucherService interface {
 		providerID uint,
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error)
+	Delete(providerID uint, voucherID uint) error
+	Publish(providerID uint, publishDTO dto.PublishedDTO) error
 }
 
 type voucherService struct {
@@ -79,4 +81,35 @@ func (s *voucherService) FindAllWithPage(
 
 	vouchers, err := s.voucherRepo.FindAllWithPage(providerID, page, perPage)
 	return pagingMetadata, vouchers, err
+}
+
+func (s *voucherService) Delete(providerID uint, voucherID uint) error {
+	voucher, err := s.voucherRepo.FindByID(voucherID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	if voucher.ProviderID != providerID {
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
+	}
+
+	return s.voucherRepo.Delete(voucherID)
+}
+
+func (s *voucherService) Publish(providerID uint, publishDTO dto.PublishedDTO) error {
+	voucher, err := s.voucherRepo.FindByID(publishDTO.VoucherID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
+		}
+		return err
+	}
+
+	if voucher.ProviderID != providerID {
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
+	}
+
+	return s.voucherRepo.Publish(publishDTO.VoucherID, publishDTO.Published)
 }
