@@ -29,7 +29,7 @@ func NewDBConnection() Database {
 func (db *database) ConnectDB() {
 	dsn := db.getURL()
 	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: false,
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		panic("Failed to connect to database")

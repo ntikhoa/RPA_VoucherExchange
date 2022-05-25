@@ -10,6 +10,10 @@ import (
 )
 
 func initVoucherController(db *gorm.DB) controllers.VoucherController {
+	// db.Unscoped().Model(&entities.Voucher{}).Where("id = ?", 2).Update("deleted_at", nil)
+	// db.Unscoped().Model(&entities.Gift{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
+	// db.Unscoped().Model(&entities.VoucherProduct{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
+
 	productRepo := repositories.NewProductRepo(db)
 	productService := services.NewProductService(productRepo)
 	voucherRepo := repositories.NewVoucherRepo(db)
@@ -36,5 +40,17 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		middlewares.GetPageFromURL(),
 		func(ctx *gin.Context) {
 			controller.FindAll(ctx)
+		})
+
+	g.DELETE(":id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			controller.Delete(ctx)
+		})
+
+	g.POST("publish",
+		middlewares.ValidatePublishedRequest(),
+		func(ctx *gin.Context) {
+			controller.Publish(ctx)
 		})
 }

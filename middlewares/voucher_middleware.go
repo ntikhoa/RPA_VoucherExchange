@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/RPA_VoucherExchange/configs"
@@ -13,10 +14,24 @@ func ValidateVoucherRequest() gin.HandlerFunc {
 		voucherDTO := dto.VoucherDTO{}
 		err := ctx.ShouldBind(&voucherDTO)
 		if err != nil {
-			ctx.AbortWithError(http.StatusInternalServerError, err)
+			log.Println(err)
+			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 		ctx.Set(configs.VOUCHER_DTO_KEY, voucherDTO)
+		ctx.Next()
+	}
+}
+
+func ValidatePublishedRequest() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		publishedDTO := dto.PublishedDTO{}
+		err := ctx.ShouldBind(&publishedDTO)
+		if err != nil {
+			log.Println(err)
+			ctx.AbortWithError(http.StatusBadRequest, err)
+		}
+		ctx.Set(configs.PUBLISHED_DTO_KEY, publishedDTO)
 		ctx.Next()
 	}
 }

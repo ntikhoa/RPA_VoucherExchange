@@ -9,8 +9,10 @@ import (
 type VoucherRepo interface {
 	Create(voucher entities.Voucher) error
 	FindByID(voucherID uint) (entities.Voucher, error)
+	Delete(voucherID uint) error
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.VoucherResponse, error)
 	Count(providerID uint) (int64, error)
+	Publish(voucherID uint, published bool) error
 }
 
 type voucherRepo struct {
@@ -62,4 +64,50 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 		Find(&vouchersRes).
 		Error
 	return vouchersRes, err
+}
+
+//transaction delete voucher product, gift and voucher with the voucher_id field
+func (r *voucherRepo) Delete(voucherID uint) error {
+	voucher := entities.Voucher{
+		Model: gorm.Model{
+			ID: voucherID,
+		},
+	}
+	voucherProduct := entities.VoucherProduct{
+		VoucherID: voucherID,
+	}
+	gift := entities.Gift{
+		VoucherID: &voucherID,
+	}
+
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where(&voucherProduct).
+			Delete([]entities.VoucherProduct{}).
+			Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where(&gift).Delete([]entities.Gift{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Delete(&voucher).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (r *voucherRepo) Publish(voucherID uint, published bool) error {
+	voucher := entities.Voucher{
+		Model: gorm.Model{
+			ID: voucherID,
+		},
+	}
+
+	return r.db.
+		Model(&voucher).
+		Update("published", published).
+		Error
 }

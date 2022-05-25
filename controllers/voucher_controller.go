@@ -14,6 +14,8 @@ type VoucherController interface {
 	Create(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+	Publish(ctx *gin.Context)
 }
 
 type voucherController struct {
@@ -34,18 +36,20 @@ func (c *voucherController) Create(ctx *gin.Context) {
 
 	productIDs := voucherDTO.GetProductIDs()
 	if err := c.productService.CheckExistence(productIDs); err != nil {
-		ctx.AbortWithError(http.StatusConflict, err)
+		log.Println(err)
+		abortCustomError(ctx, err)
 		return
 	}
 
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	if err := c.voucherService.Create(voucherDTO, providerID); err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		abortCustomError(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  200,
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status":  http.StatusCreated,
 		"data":    nil,
 		"error":   nil,
 		"message": "Voucher created successfully.",
@@ -63,7 +67,7 @@ func (c *voucherController) FindByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  200,
+		"status":  http.StatusOK,
 		"data":    voucher,
 		"error":   nil,
 		"message": "Voucher found successfully.",
@@ -82,13 +86,50 @@ func (c *voucherController) FindAll(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(200, gin.H{
-		"status": 200,
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
 		"data": gin.H{
 			"metadata": metadata,
 			"vouchers": vouchers,
 		},
 		"error":   nil,
 		"message": "Voucher found successfully.",
+	})
+}
+
+func (c *voucherController) Delete(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	voucherID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+
+	if err := c.voucherService.Delete(providerID, voucherID); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Voucher deleted successfully.",
+	})
+}
+
+func (c *voucherController) Publish(ctx *gin.Context) {
+	publishedDTO := ctx.MustGet(configs.PUBLISHED_DTO_KEY).(dto.PublishedDTO)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+
+	err := c.voucherService.Publish(providerID, publishedDTO)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Voucher published successfully.",
 	})
 }
