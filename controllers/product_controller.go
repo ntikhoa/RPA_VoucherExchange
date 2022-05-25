@@ -59,7 +59,7 @@ func (c *productController) Update(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  200,
+		"status":  http.StatusCreated,
 		"data":    nil,
 		"error":   nil,
 		"message": "Product updated successfully.",
@@ -77,7 +77,7 @@ func (c *productController) Delete(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  200,
+		"status":  http.StatusOK,
 		"data":    nil,
 		"error":   nil,
 		"message": "Product deleted successfully.",
@@ -97,7 +97,7 @@ func (c *productController) FindAll(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": 200,
+		"status": http.StatusOK,
 		"data": gin.H{
 			"metadata": metadata,
 			"products": products,
@@ -119,7 +119,7 @@ func (c *productController) FindByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": 200,
+		"status": http.StatusOK,
 		"data": gin.H{
 			"product": product,
 		},
