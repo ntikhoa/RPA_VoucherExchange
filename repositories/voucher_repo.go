@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"log"
+
 	"github.com/RPA_VoucherExchange/entities"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
@@ -35,18 +37,21 @@ func (r *voucherRepo) Create(voucher entities.Voucher) error {
 //update updated voucher
 func (r *voucherRepo) Update(voucher entities.Voucher) error {
 
-	gifts := entities.Gift{
+	gift := entities.Gift{
 		VoucherID: &voucher.Model.ID,
 	}
-
+	voucher.Gift.VoucherID = &voucher.Model.ID
 	voucherProducts := entities.VoucherProduct{
 		VoucherID: voucher.Model.ID,
 	}
-
+	log.Println(voucher.Gift.GiftName)
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Unscoped().Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
+		if err := tx.Model(&gift).Where(&gift).Update("gift_name", voucher.Gift.GiftName).Error; err != nil {
 			return err
 		}
+		// if err := tx.Unscoped().Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
+		// 	return err
+		// }
 
 		if err := tx.Unscoped().Where(&voucherProducts).Delete([]entities.VoucherProduct{}).Error; err != nil {
 			return err
@@ -68,7 +73,7 @@ func (r *voucherRepo) FindByID(voucherID uint) (entities.Voucher, error) {
 	}
 	err := r.db.
 		Preload("VoucherProducts").
-		Preload("Gifts").
+		Preload("Gift").
 		First(&voucher).
 		Error
 	return voucher, err
@@ -107,7 +112,7 @@ func (r *voucherRepo) Delete(voucherID uint) error {
 	voucherProducts := entities.VoucherProduct{
 		VoucherID: voucherID,
 	}
-	gifts := entities.Gift{
+	gift := entities.Gift{
 		VoucherID: &voucherID,
 	}
 
@@ -118,7 +123,7 @@ func (r *voucherRepo) Delete(voucherID uint) error {
 			return err
 		}
 
-		if err := tx.Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
+		if err := tx.Where(&gift).Delete(&gift).Error; err != nil {
 			return err
 		}
 
