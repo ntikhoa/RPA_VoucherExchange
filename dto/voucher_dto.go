@@ -11,7 +11,7 @@ type VoucherDTO struct {
 	Remaining          uint                `json:"remaining"`
 	Published          bool                `json:"published"`
 	VoucherProductDTOs []VoucherProductDTO `json:"products" binding:"required"`
-	Gifts              []string            `json:"gifts" binding:"required"`
+	Gift               string              `json:"gift" binding:"required"`
 }
 
 func (dto VoucherDTO) GetProductIDs() []uint {
@@ -27,13 +27,6 @@ func (dto VoucherDTO) ToEntity(providerID uint) entities.Voucher {
 	for _, x := range dto.VoucherProductDTOs {
 		voucherProducts = append(voucherProducts, x.ToEntity())
 	}
-	var gifts []entities.Gift
-	for _, x := range dto.Gifts {
-		gifts = append(gifts, entities.Gift{
-			GiftName:   x,
-			ProviderID: providerID,
-		})
-	}
 
 	return entities.Voucher{
 		Name:            dto.Name,
@@ -44,7 +37,7 @@ func (dto VoucherDTO) ToEntity(providerID uint) entities.Voucher {
 		Remaining:       dto.Remaining,
 		Published:       dto.Published,
 		VoucherProducts: voucherProducts,
-		Gifts:           gifts,
+		Gift:            entities.Gift{GiftName: dto.Gift},
 		ProviderID:      providerID,
 	}
 }

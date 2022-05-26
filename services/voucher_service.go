@@ -57,6 +57,8 @@ func (s *voucherService) Update(voucherDTO dto.VoucherDTO, providerID uint, vouc
 	}
 
 	//Update
+	fetchedVoucher.Gift.GiftName = voucherDTO.Gift
+	voucher.Gift = fetchedVoucher.Gift
 	return s.voucherRepo.Update(voucher)
 }
 
