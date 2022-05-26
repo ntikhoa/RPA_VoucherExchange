@@ -12,6 +12,7 @@ import (
 
 type VoucherController interface {
 	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
 	Delete(ctx *gin.Context)
@@ -56,6 +57,32 @@ func (c *voucherController) Create(ctx *gin.Context) {
 	})
 }
 
+func (c *voucherController) Update(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	voucherID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
+
+	productIDs := voucherDTO.GetProductIDs()
+	if err := c.productService.CheckExistence(productIDs); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	if err := c.voucherService.Update(voucherDTO, providerID, voucherID); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Voucher updated successfully.",
+	})
+}
+
 func (c *voucherController) FindByID(ctx *gin.Context) {
 	voucherID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
@@ -93,7 +120,7 @@ func (c *voucherController) FindAll(ctx *gin.Context) {
 			"vouchers": vouchers,
 		},
 		"error":   nil,
-		"message": "Voucher found successfully.",
+		"message": "Vouchers found successfully.",
 	})
 }
 

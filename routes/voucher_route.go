@@ -53,4 +53,11 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.Publish(ctx)
 		})
+
+	g.PUT(":id",
+		middlewares.GetIDFromURL(),
+		middlewares.ValidateVoucherRequest(),
+		func(ctx *gin.Context) {
+			controller.Update(ctx)
+		})
 }
