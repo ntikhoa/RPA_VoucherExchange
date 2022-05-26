@@ -7,7 +7,7 @@ import (
 )
 
 type VoucherProduct struct {
-	VoucherID   uint `gorm:"primaryKey"`
+	VoucherID   uint `gorm:"primaryKey;constraint:OnUpdate:SET NULL;"`
 	ProductID   uint `gorm:"primaryKey"`
 	QuantityMin uint `gorm:"not null"`
 	QuantityMax uint `gorm:"not null"`

@@ -15,6 +15,7 @@ import (
 
 type VoucherService interface {
 	Create(voucherDTO dto.VoucherDTO, providerID uint) error
+	Update(voucherDTO dto.VoucherDTO, providerID uint, voucherID uint) error
 	FindByID(voucherID uint, providerID uint) (entities.Voucher, error)
 	FindAllWithPage(
 		providerID uint,
@@ -37,6 +38,26 @@ func NewVoucherService(voucherRepo repositories.VoucherRepo) VoucherService {
 func (s *voucherService) Create(voucherDTO dto.VoucherDTO, providerID uint) error {
 	voucher := voucherDTO.ToEntity(providerID)
 	return s.voucherRepo.Create(voucher)
+}
+
+func (s *voucherService) Update(voucherDTO dto.VoucherDTO, providerID uint, voucherID uint) error {
+	voucher := voucherDTO.ToEntity(providerID)
+	voucher.Model.ID = voucherID
+
+	//authorize
+	fetchedVoucher, err := s.voucherRepo.FindByID(voucherID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
+		}
+		return err
+	}
+	if fetchedVoucher.ProviderID != providerID {
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
+	}
+
+	//Update
+	return s.voucherRepo.Update(voucher)
 }
 
 func (s *voucherService) FindByID(voucherID uint, providerID uint) (entities.Voucher, error) {

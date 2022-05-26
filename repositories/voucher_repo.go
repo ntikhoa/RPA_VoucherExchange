@@ -8,6 +8,7 @@ import (
 
 type VoucherRepo interface {
 	Create(voucher entities.Voucher) error
+	Update(voucher entities.Voucher) error
 	FindByID(voucherID uint) (entities.Voucher, error)
 	Delete(voucherID uint) error
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.VoucherResponse, error)
@@ -27,6 +28,36 @@ func NewVoucherRepo(db *gorm.DB) VoucherRepo {
 
 func (r *voucherRepo) Create(voucher entities.Voucher) error {
 	return r.db.Create(&voucher).Error
+}
+
+//remove old gifts and add updated gifts
+//remove old voucherProducts and add updated voucherProducts
+//update updated voucher
+func (r *voucherRepo) Update(voucher entities.Voucher) error {
+
+	gifts := entities.Gift{
+		VoucherID: &voucher.Model.ID,
+	}
+
+	voucherProducts := entities.VoucherProduct{
+		VoucherID: voucher.Model.ID,
+	}
+
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Unscoped().Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Unscoped().Where(&voucherProducts).Delete([]entities.VoucherProduct{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Save(&voucher).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (r *voucherRepo) FindByID(voucherID uint) (entities.Voucher, error) {
@@ -73,21 +104,21 @@ func (r *voucherRepo) Delete(voucherID uint) error {
 			ID: voucherID,
 		},
 	}
-	voucherProduct := entities.VoucherProduct{
+	voucherProducts := entities.VoucherProduct{
 		VoucherID: voucherID,
 	}
-	gift := entities.Gift{
+	gifts := entities.Gift{
 		VoucherID: &voucherID,
 	}
 
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where(&voucherProduct).
+		if err := tx.Where(&voucherProducts).
 			Delete([]entities.VoucherProduct{}).
 			Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where(&gift).Delete([]entities.Gift{}).Error; err != nil {
+		if err := tx.Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
 			return err
 		}
 
