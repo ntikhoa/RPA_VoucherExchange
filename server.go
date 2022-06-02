@@ -22,9 +22,9 @@ func main() {
 
 	conn.ConnectDB()
 	defer conn.CloseDB()
-	// conn.Init()
+	conn.Init()
 	db := conn.GetDB()
-	// utils.Seeding(db)
+	// utils.SeedProducts(db)
 
 	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())

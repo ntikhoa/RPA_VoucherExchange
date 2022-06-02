@@ -68,6 +68,6 @@ func (c *authController) Login(ctx *gin.Context) {
 			"name":  employee.Name,
 		},
 		"error":   nil,
-		"message": "register successfully",
+		"message": "login successfully",
 	})
 }

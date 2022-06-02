@@ -86,7 +86,7 @@ func (c *productController) Delete(ctx *gin.Context) {
 
 func (c *productController) FindAll(ctx *gin.Context) {
 	page := ctx.MustGet(configs.PAGE_QUERY_KEY).(int)
-	perPage := 2
+	perPage := 10
 
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	metadata, products, err := c.productService.FindAllWithPage(providerID, page, perPage)
