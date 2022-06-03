@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"log"
+	"time"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -55,8 +56,7 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 		return err
 	}
 
-	employee := registerDTO.ToEntity()
-	employee.HashedPassword = string(bytes)
+	employee := registerDTO.ToEntity(string(bytes))
 
 	return s.employeeRepo.Create(employee)
 }
@@ -71,6 +71,11 @@ func (s *authService) Login(loginDTO dto.LoginDTO) (entities.Employee, error) {
 	if err := bcrypt.CompareHashAndPassword([]byte(employee.HashedPassword), []byte(loginDTO.Password)); err != nil {
 		log.Println("password")
 		return employee, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)
+	}
+
+	employee.IssueAt = time.Now()
+	if err := s.employeeRepo.Update(employee); err != nil {
+		return entities.Employee{}, err
 	}
 
 	return employee, nil
