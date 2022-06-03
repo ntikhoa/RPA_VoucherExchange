@@ -6,6 +6,7 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
+	"github.com/RPA_VoucherExchange/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,14 +16,14 @@ var (
 
 func main() {
 	//for loading local .env file
-	// utils.LoadDotEnv()
+	utils.LoadDotEnv()
 
 	port := os.Getenv("PORT")
 	server := gin.New()
 
 	conn.ConnectDB()
 	defer conn.CloseDB()
-	// conn.Init()
+	conn.Init()
 	db := conn.GetDB()
 	// utils.SeedProducts(db)
 
@@ -33,7 +34,7 @@ func main() {
 	{
 		apiProductRoutes := apiRoutesV1.Group("/products")
 		{
-			apiProductRoutes.Use(middlewares.AuthorizeJwt())
+			apiProductRoutes.Use(middlewares.AuthorizeJwt(db))
 			routes.ProductRoutes(apiProductRoutes, db)
 		}
 
@@ -44,7 +45,7 @@ func main() {
 
 		apiVoucherRoutes := apiRoutesV1.Group("/vouchers")
 		{
-			apiVoucherRoutes.Use(middlewares.AuthorizeJwt())
+			apiVoucherRoutes.Use(middlewares.AuthorizeJwt(db))
 			routes.VoucherRoutes(apiVoucherRoutes, db)
 		}
 	}

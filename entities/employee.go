@@ -1,6 +1,10 @@
 package entities
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Employee struct {
 	gorm.Model
@@ -9,4 +13,5 @@ type Employee struct {
 	Name           string `gorm:"type:varchar(255)"`
 	ProviderID     uint
 	Provider       Provider `gorm:"foreignKey:ProviderID"`
+	IssueAt        time.Time
 }

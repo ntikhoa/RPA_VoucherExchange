@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/RPA_VoucherExchange/entities"
+import (
+	"time"
+
+	"github.com/RPA_VoucherExchange/entities"
+)
 
 type RegisterDTO struct {
 	Username          string `form:"username" json:"username" binding:"required"`
@@ -10,10 +14,12 @@ type RegisterDTO struct {
 	ProviderID        uint   `form:"provider_id" json:"provider_id" binding:"required"`
 }
 
-func (dto RegisterDTO) ToEntity() entities.Employee {
+func (dto RegisterDTO) ToEntity(hashedPassword string) entities.Employee {
 	return entities.Employee{
-		Username:   dto.Username,
-		Name:       dto.Name,
-		ProviderID: dto.ProviderID,
+		Username:       dto.Username,
+		HashedPassword: hashedPassword,
+		Name:           dto.Name,
+		ProviderID:     dto.ProviderID,
+		IssueAt:        time.Now(),
 	}
 }

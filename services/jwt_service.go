@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/entities"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -29,13 +30,16 @@ func NewJWTService() JWTService {
 type jwtCustomClaims struct {
 	EmployeeID string `json:"employee_id"`
 	ProviderID string `json:"provider_id"`
+	IssueAt    string `json:"issue_at"`
 	jwt.RegisteredClaims
 }
 
 func (s *jwtService) GenerateToken(employee entities.Employee) (string, error) {
+
 	claims := jwtCustomClaims{
 		EmployeeID: strconv.FormatUint(uint64(employee.Model.ID), 10),
 		ProviderID: strconv.FormatUint(uint64(employee.ProviderID), 10),
+		IssueAt:    employee.IssueAt.Format(constants.JWT_DATE_FORMAT),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)), //1 week
 			Issuer:    "github.com/ntikhoa",
