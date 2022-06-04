@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"log"
-
 	"github.com/RPA_VoucherExchange/entities"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
@@ -32,28 +30,17 @@ func (r *voucherRepo) Create(voucher entities.Voucher) error {
 	return r.db.Create(&voucher).Error
 }
 
-//remove old gifts and add updated gifts
-//remove old voucherProducts and add updated voucherProducts
-//update updated voucher
 func (r *voucherRepo) Update(voucher entities.Voucher) error {
 
 	gift := entities.Gift{
-		VoucherID: &voucher.Model.ID,
-	}
-	voucher.Gift.VoucherID = &voucher.Model.ID
-	voucherProducts := entities.VoucherProduct{
 		VoucherID: voucher.Model.ID,
 	}
-	log.Println(voucher.Gift.GiftName)
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&gift).Where(&gift).Update("gift_name", voucher.Gift.GiftName).Error; err != nil {
 			return err
 		}
-		// if err := tx.Unscoped().Where(&gifts).Delete([]entities.Gift{}).Error; err != nil {
-		// 	return err
-		// }
 
-		if err := tx.Unscoped().Where(&voucherProducts).Delete([]entities.VoucherProduct{}).Error; err != nil {
+		if err := tx.Model(&voucher).Association("Products").Replace(voucher.Products); err != nil {
 			return err
 		}
 
@@ -72,7 +59,7 @@ func (r *voucherRepo) FindByID(voucherID uint) (entities.Voucher, error) {
 		},
 	}
 	err := r.db.
-		Preload("VoucherProducts").
+		Preload("Products").
 		Preload("Gift").
 		First(&voucher).
 		Error
@@ -102,37 +89,13 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 	return vouchersRes, err
 }
 
-//transaction delete voucher product, gift and voucher with the voucher_id field
 func (r *voucherRepo) Delete(voucherID uint) error {
 	voucher := entities.Voucher{
 		Model: gorm.Model{
 			ID: voucherID,
 		},
 	}
-	voucherProducts := entities.VoucherProduct{
-		VoucherID: voucherID,
-	}
-	gift := entities.Gift{
-		VoucherID: &voucherID,
-	}
-
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where(&voucherProducts).
-			Delete([]entities.VoucherProduct{}).
-			Error; err != nil {
-			return err
-		}
-
-		if err := tx.Where(&gift).Delete(&gift).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Delete(&voucher).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
+	return r.db.Select("Gift", "Products").Delete(&voucher).Error
 }
 
 func (r *voucherRepo) Publish(voucherID uint, published bool) error {

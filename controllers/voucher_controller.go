@@ -35,7 +35,7 @@ func NewVoucherController(voucherService services.VoucherService,
 func (c *voucherController) Create(ctx *gin.Context) {
 	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
 
-	productIDs := voucherDTO.GetProductIDs()
+	productIDs := voucherDTO.ProductIDs
 	if err := c.productService.CheckExistence(productIDs); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -62,7 +62,7 @@ func (c *voucherController) Update(ctx *gin.Context) {
 	voucherID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
 
-	productIDs := voucherDTO.GetProductIDs()
+	productIDs := voucherDTO.ProductIDs
 	if err := c.productService.CheckExistence(productIDs); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
