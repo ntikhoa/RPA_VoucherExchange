@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/RPA_VoucherExchange/controllers"
-	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
 	"github.com/RPA_VoucherExchange/services"
@@ -11,9 +10,8 @@ import (
 )
 
 func initVoucherController(db *gorm.DB) controllers.VoucherController {
-	db.Unscoped().Model(&entities.Voucher{}).Where("id = ?", 2).Update("deleted_at", nil)
-	db.Unscoped().Model(&entities.Gift{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
-	db.Unscoped().Model(&entities.VoucherProduct{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
+	// db.Unscoped().Model(&entities.Voucher{}).Where("id = ?", 2).Update("deleted_at", nil)
+	// db.Unscoped().Model(&entities.Gift{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
 
 	productRepo := repositories.NewProductRepo(db)
 	productService := services.NewProductService(productRepo)
