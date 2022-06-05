@@ -98,6 +98,7 @@ func (repo *productRepo) GetAll(providerID uint) ([]entities.Product, error) {
 	err := repo.
 		db.
 		Where(&entities.Product{ProviderID: providerID}).
+		Order("product_name").
 		Find(&products).
 		Error
 
