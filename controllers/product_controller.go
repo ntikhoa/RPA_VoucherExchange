@@ -16,6 +16,7 @@ type ProductController interface {
 	Delete(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	GetAll(ctx *gin.Context)
 }
 
 type productController struct {
@@ -39,7 +40,7 @@ func (c *productController) Create(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  200,
+		"status":  http.StatusCreated,
 		"data":    nil,
 		"error":   nil,
 		"message": "Product created successfully.",
@@ -58,8 +59,8 @@ func (c *productController) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{
-		"status":  http.StatusCreated,
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
 		"data":    nil,
 		"error":   nil,
 		"message": "Product updated successfully.",
@@ -125,5 +126,25 @@ func (c *productController) FindByID(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Product found successfully.",
+	})
+}
+
+func (c *productController) GetAll(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+
+	products, err := c.productService.GetAll(providerID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"products": products,
+		},
+		"error":   nil,
+		"message": "Product created successfully.",
 	})
 }

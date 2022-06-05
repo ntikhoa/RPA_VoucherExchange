@@ -11,9 +11,9 @@ type ProductRepo interface {
 	DeleteByID(productID uint) error
 	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
 	FindByID(productID uint) (entities.Product, error)
-
 	Count(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) ([]uint, error)
+	GetAll(providerID uint) ([]entities.Product, error)
 }
 
 type productRepo struct {
@@ -78,7 +78,11 @@ type productID struct {
 
 func (repo *productRepo) CheckExistence(productIDs []uint) ([]uint, error) {
 	var IDs []productID
-	tx := repo.db.Model(&entities.Product{}).Where("id IN ?", productIDs).Find(&IDs)
+	tx := repo.
+		db.
+		Model(&entities.Product{}).
+		Where("id IN ?", productIDs).
+		Find(&IDs)
 
 	ids := []uint{}
 
@@ -86,4 +90,16 @@ func (repo *productRepo) CheckExistence(productIDs []uint) ([]uint, error) {
 		ids = append(ids, id.ID)
 	}
 	return ids, tx.Error
+}
+
+func (repo *productRepo) GetAll(providerID uint) ([]entities.Product, error) {
+	var products []entities.Product
+
+	err := repo.
+		db.
+		Where(&entities.Product{ProviderID: providerID}).
+		Find(&products).
+		Error
+
+	return products, err
 }

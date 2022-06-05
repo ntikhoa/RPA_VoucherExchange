@@ -94,8 +94,10 @@ func (c *voucherController) FindByID(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"data":    voucher,
+		"status": http.StatusOK,
+		"data": gin.H{
+			"voucher": voucher,
+		},
 		"error":   nil,
 		"message": "Voucher found successfully.",
 	})
