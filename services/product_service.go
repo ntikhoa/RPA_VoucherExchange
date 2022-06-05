@@ -25,6 +25,7 @@ type ProductService interface {
 	FindByID(productID uint, providerID uint) (entities.Product, error)
 	GetCount(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) error
+	GetAll(providerID uint) ([]entities.Product, error)
 }
 
 type productService struct {
@@ -130,6 +131,15 @@ func (s *productService) CheckExistence(productIDs []uint) error {
 		return custom_error.NewConflictError("invalid product ids: " + invalidIDstr)
 	}
 	return nil
+}
+
+func (s *productService) GetAll(providerID uint) ([]entities.Product, error) {
+	products, err := s.repo.GetAll(providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
 
 func extractInvalidIDs(fetchedIDs []uint, requestIDs []uint) []uint {
