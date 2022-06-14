@@ -106,7 +106,7 @@ func (c *voucherController) FindByID(ctx *gin.Context) {
 func (c *voucherController) FindAll(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	page := ctx.MustGet(configs.PAGE_QUERY_KEY).(int)
-	perPage := 2
+	perPage := ctx.MustGet(configs.PER_PAGE_QUERY_KEY).(int)
 
 	metadata, vouchers, err := c.voucherService.FindAllWithPage(providerID, page, perPage)
 	if err != nil {
