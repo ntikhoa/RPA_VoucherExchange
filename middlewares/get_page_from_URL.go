@@ -29,10 +29,14 @@ func GetPageFromURL() gin.HandlerFunc {
 			return
 		}
 
-		perPageQuery := value["perPage"]
-		perPageConv, err := strconv.ParseInt(perPageQuery[0], 10, 64)
-		if err != nil || perPageConv <= 0 {
-			perPageConv = 10
+		perPageQuery, ok := value["per_page"]
+		perPageConv := int64(10)
+		if ok {
+			perPageConv, err = strconv.ParseInt(perPageQuery[0], 10, 64)
+			if err != nil || perPageConv <= 0 {
+				perPageConv = 10
+			}
+
 		}
 
 		ctx.Set(configs.PAGE_QUERY_KEY, int(pageConv))
