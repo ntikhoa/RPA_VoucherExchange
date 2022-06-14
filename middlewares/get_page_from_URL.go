@@ -28,7 +28,15 @@ func GetPageFromURL() gin.HandlerFunc {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+
+		perPageQuery := value["perPage"]
+		perPageConv, err := strconv.ParseInt(perPageQuery[0], 10, 64)
+		if err != nil || perPageConv <= 0 {
+			perPageConv = 10
+		}
+
 		ctx.Set(configs.PAGE_QUERY_KEY, int(pageConv))
+		ctx.Set(configs.PER_PAGE_QUERY_KEY, int(perPageConv))
 		ctx.Next()
 	}
 }
