@@ -18,6 +18,7 @@ type ProductService interface {
 	Create(productDTO dto.ProductDTO, providerID uint) error
 	Update(productDTO dto.ProductDTO, providerID uint, productID uint) error
 	DeleteByID(productID uint, providerID uint) error
+	DeleteByIDs(productIDs []uint, providerID uint) error
 	FindAllWithPage(
 		providerID uint,
 		page int,
@@ -140,6 +141,25 @@ func (s *productService) GetAll(providerID uint) ([]entities.Product, error) {
 	}
 
 	return products, nil
+}
+
+func (s *productService) DeleteByIDs(productIDs []uint, providerID uint) error {
+	products, err := s.repo.FindByIDs(productIDs)
+	if err != nil {
+		return err
+	}
+	var filteredProductIDs []uint
+	if len(products) > 0 {
+		for _, product := range products {
+			if product.ProviderID == providerID {
+				filteredProductIDs = append(filteredProductIDs, product.Model.ID)
+			}
+		}
+	}
+	if len(filteredProductIDs) > 0 {
+		return s.repo.DeleteByIDs(filteredProductIDs)
+	}
+	return nil
 }
 
 func extractInvalidIDs(fetchedIDs []uint, requestIDs []uint) []uint {

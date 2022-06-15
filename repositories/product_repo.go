@@ -9,8 +9,10 @@ type ProductRepo interface {
 	Create(product entities.Product) error
 	Update(product entities.Product) error
 	DeleteByID(productID uint) error
+	DeleteByIDs(productIDs []uint) error
 	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
 	FindByID(productID uint) (entities.Product, error)
+	FindByIDs(productIDs []uint) ([]entities.Product, error)
 	Count(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) ([]uint, error)
 	GetAll(providerID uint) ([]entities.Product, error)
@@ -103,4 +105,18 @@ func (repo *productRepo) GetAll(providerID uint) ([]entities.Product, error) {
 		Error
 
 	return products, err
+}
+
+func (repo *productRepo) FindByIDs(productIDs []uint) ([]entities.Product, error) {
+	var products []entities.Product
+	err := repo.db.Find(&products, productIDs).Error
+	return products, err
+}
+
+func (repo *productRepo) DeleteByIDs(productIDs []uint) error {
+	var products []entities.Product
+	return repo.db.
+		Unscoped().
+		Delete(&products, productIDs).
+		Error
 }

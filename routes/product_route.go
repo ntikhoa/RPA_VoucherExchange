@@ -53,4 +53,10 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			productController.GetAll(ctx)
 		})
+
+	g.POST("/delete_products",
+		middlewares.ValidateDeleteProductsRequest(),
+		func(ctx *gin.Context) {
+			productController.DeleteProducts(ctx)
+		})
 }
