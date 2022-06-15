@@ -48,7 +48,40 @@ func (db *database) Init() {
 		&entities.Product{},
 		&entities.Gift{},
 		&entities.Employee{},
+		&entities.Role{},
+		&entities.ReceiptImage{},
 	)
+	initEnum(db.connection)
+}
+
+func initEnum(db *gorm.DB) {
+	db.Create(&entities.Role{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Description: "ADMIN",
+	})
+
+	db.Create(&entities.Role{
+		Model: gorm.Model{
+			ID: 2,
+		},
+		Description: "SALE",
+	})
+
+	db.Create(&entities.ReceiptStatus{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Description: "COMPLETE",
+	})
+
+	db.Create(&entities.ReceiptStatus{
+		Model: gorm.Model{
+			ID: 2,
+		},
+		Description: "PENDING",
+	})
 }
 
 func (db *database) GetDB() *gorm.DB {

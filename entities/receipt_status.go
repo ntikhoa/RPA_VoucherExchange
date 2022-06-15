@@ -6,5 +6,5 @@ import (
 
 type ReceiptStatus struct {
 	gorm.Model
-	Description string `gorm:"type:enum('PENDING', 'COMPLETE'); not null"`
+	Description string `gorm:"type:enum('PENDING', 'COMPLETE'); not null; UNIQUE"`
 }
