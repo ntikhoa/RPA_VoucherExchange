@@ -2,6 +2,7 @@ package configs
 
 const (
 	PRODUCT_DTO_KEY       = "product_dto_key"
+	PRODUCT_IDS_DTO_KEY   = "product_ids_dto_key"
 	VOUCHER_DTO_KEY       = "voucher_dto_key"
 	PUBLISHED_DTO_KEY     = "published_dto_key"
 	ID_PARAM_KEY          = "id_param"

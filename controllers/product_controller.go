@@ -14,6 +14,7 @@ type ProductController interface {
 	Create(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	DeleteProducts(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	GetAll(ctx *gin.Context)
@@ -146,5 +147,25 @@ func (c *productController) GetAll(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Product created successfully.",
+	})
+}
+
+func (c *productController) DeleteProducts(ctx *gin.Context) {
+	productIDs := ctx.MustGet(configs.PRODUCT_IDS_DTO_KEY).([]uint)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+
+	log.Println(productIDs)
+
+	if err := c.productService.DeleteByIDs(productIDs, providerID); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Products deleted successfully.",
 	})
 }
