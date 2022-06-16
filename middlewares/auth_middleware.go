@@ -35,3 +35,18 @@ func ValidateLoginRequest() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func ValidateRegisterSaleRequest() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+		registerSaleDTO := dto.RegisterSaleDTO{}
+		if err := ctx.ShouldBind(&registerSaleDTO); err != nil {
+			log.Println(err)
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+		registerDTO := registerSaleDTO.ToRegisterDTO(providerID)
+		ctx.Set(configs.REGISTER_KEY, registerDTO)
+		ctx.Next()
+	}
+}

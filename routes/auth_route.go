@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/controllers"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
@@ -11,8 +12,8 @@ import (
 
 func initAuthController(db *gorm.DB) controllers.AuthController {
 	providerRepo := repositories.NewProviderRepo(db)
-	employeeRepo := repositories.NewEmployeeRepo(db)
-	authService := services.NewAuthService(employeeRepo, providerRepo)
+	accountRepo := repositories.NewAccountRepo(db)
+	authService := services.NewAuthService(accountRepo, providerRepo)
 	jwtService := services.NewJWTService()
 	return controllers.NewAuthController(authService, jwtService)
 }
@@ -20,15 +21,22 @@ func initAuthController(db *gorm.DB) controllers.AuthController {
 func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	controller := initAuthController(db)
 
-	g.POST("/register",
+	g.POST("/register_admin",
 		middlewares.ValidateRegisterRequest(),
 		func(ctx *gin.Context) {
-			controller.Register(ctx)
+			controller.Register(ctx, constants.ROLE_ADMIN)
 		})
 
 	g.POST("/login",
 		middlewares.ValidateLoginRequest(),
 		func(ctx *gin.Context) {
-			controller.Login(ctx)
+			controller.Login(ctx, constants.ROLE_ADMIN)
+		})
+
+	g.POST("/register_sales",
+		middlewares.AuthorizeJwt(db),
+		middlewares.ValidateRegisterSaleRequest(),
+		func(ctx *gin.Context) {
+			controller.Register(ctx, constants.ROLE_SALE)
 		})
 }

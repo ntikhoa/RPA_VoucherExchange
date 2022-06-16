@@ -11,8 +11,8 @@ import (
 )
 
 type AuthController interface {
-	Register(ctx *gin.Context)
-	Login(ctx *gin.Context)
+	Register(ctx *gin.Context, roleID uint)
+	Login(ctx *gin.Context, roleID uint)
 }
 
 type authController struct {
@@ -27,9 +27,9 @@ func NewAuthController(authService services.AuthService, jwtService services.JWT
 	}
 }
 
-func (c *authController) Register(ctx *gin.Context) {
+func (c *authController) Register(ctx *gin.Context, roleID uint) {
 	registerDTO := ctx.MustGet(configs.REGISTER_KEY).(dto.RegisterDTO)
-	err := c.authService.Register(registerDTO)
+	err := c.authService.Register(registerDTO, roleID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -44,10 +44,10 @@ func (c *authController) Register(ctx *gin.Context) {
 	})
 }
 
-func (c *authController) Login(ctx *gin.Context) {
+func (c *authController) Login(ctx *gin.Context, roleID uint) {
 	loginDTO := ctx.MustGet(configs.LOGIN_KEY).(dto.LoginDTO)
 
-	employee, err := c.authService.Login(loginDTO)
+	employee, err := c.authService.Login(loginDTO, roleID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)

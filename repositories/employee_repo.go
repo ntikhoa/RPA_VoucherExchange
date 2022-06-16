@@ -5,53 +5,52 @@ import (
 	"gorm.io/gorm"
 )
 
-type EmployeeRepo interface {
-	Create(employee entities.Employee) error
-	Update(employee entities.Employee) error
-	FindByUsername(username string) (entities.Employee, error)
-	FindEmployee(employeeID uint, providerID uint) (entities.Employee, error)
+type AccountRepo interface {
+	Create(account entities.Account) error
+	Update(account entities.Account) error
+	FindByUsername(username string) (entities.Account, error)
+	FindAccount(accountID uint, providerID uint) (entities.Account, error)
 }
 
-type employeeRepo struct {
+type accountRepo struct {
 	db *gorm.DB
 }
 
-func NewEmployeeRepo(db *gorm.DB) EmployeeRepo {
-	return &employeeRepo{
+func NewAccountRepo(db *gorm.DB) AccountRepo {
+	return &accountRepo{
 		db: db,
 	}
 }
 
-func (repo *employeeRepo) Create(employee entities.Employee) error {
-	return repo.db.Create(&employee).Error
+func (repo *accountRepo) Create(account entities.Account) error {
+	return repo.db.Create(&account).Error
 }
 
-func (repo *employeeRepo) Update(employee entities.Employee) error {
-	return repo.db.Save(&employee).Error
+func (repo *accountRepo) Update(account entities.Account) error {
+	return repo.db.Save(&account).Error
 }
 
-func (repo *employeeRepo) FindByUsername(username string) (entities.Employee, error) {
-	employee := entities.Employee{}
+func (repo *accountRepo) FindByUsername(username string) (entities.Account, error) {
+	account := entities.Account{}
 	err := repo.db.
-		Where(&entities.Employee{Username: username}).
-		First(&employee).
+		Where(&entities.Account{Username: username}).
+		First(&account).
 		Error
 
-	return employee, err
+	return account, err
 }
 
-func (repo *employeeRepo) FindEmployee(employeeID uint, providerID uint) (entities.Employee, error) {
-	employee := entities.Employee{}
+func (repo *accountRepo) FindAccount(accountID uint, providerID uint) (entities.Account, error) {
+	account := entities.Account{}
 	err := repo.db.
-		//Model(&employee).
-		Where(&entities.Employee{
+		Where(&entities.Account{
 			Model: gorm.Model{
-				ID: employeeID,
+				ID: accountID,
 			},
 			ProviderID: providerID,
 		}).
-		Find(&employee).
+		Find(&account).
 		Error
 
-	return employee, err
+	return account, err
 }

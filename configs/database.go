@@ -39,6 +39,7 @@ func (db *database) ConnectDB() {
 
 func (db *database) Init() {
 	db.connection.AutoMigrate(
+		&entities.Account{},
 		&entities.Provider{},
 		&entities.ReceiptStatus{},
 		&entities.Receipt{},
@@ -47,7 +48,6 @@ func (db *database) Init() {
 		&entities.Voucher{},
 		&entities.Product{},
 		&entities.Gift{},
-		&entities.Employee{},
 		&entities.Role{},
 		&entities.ReceiptImage{},
 	)

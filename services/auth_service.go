@@ -15,24 +15,24 @@ import (
 )
 
 type AuthService interface {
-	Register(registerDTO dto.RegisterDTO) error
-	Login(loginDTO dto.LoginDTO) (entities.Employee, error)
+	Register(registerDTO dto.RegisterDTO, roleID uint) error
+	Login(loginDTO dto.LoginDTO, roleID uint) (entities.Account, error)
 }
 
 type authService struct {
-	employeeRepo repositories.EmployeeRepo
+	accountRepo  repositories.AccountRepo
 	providerRepo repositories.ProviderRepo
 }
 
-func NewAuthService(employeeRepo repositories.EmployeeRepo,
+func NewAuthService(accountRepo repositories.AccountRepo,
 	providerRepo repositories.ProviderRepo) AuthService {
 	return &authService{
-		employeeRepo: employeeRepo,
+		accountRepo:  accountRepo,
 		providerRepo: providerRepo,
 	}
 }
 
-func (s *authService) Register(registerDTO dto.RegisterDTO) error {
+func (s *authService) Register(registerDTO dto.RegisterDTO, roleID uint) error {
 	if registerDTO.Password != registerDTO.ConfirmedPassword {
 		return custom_error.NewBadRequestError(constants.CONFIRMED_PASSWORD_ERROR)
 	}
@@ -45,8 +45,8 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 		return err
 	}
 
-	//employee exist
-	if _, err := s.employeeRepo.FindByUsername(registerDTO.Username); err == nil {
+	//account exist
+	if _, err := s.accountRepo.FindByUsername(registerDTO.Username); err == nil {
 		log.Println(err)
 		return custom_error.NewConflictError(constants.USERNAME_DUPLICATE_ERROR)
 	}
@@ -56,27 +56,31 @@ func (s *authService) Register(registerDTO dto.RegisterDTO) error {
 		return err
 	}
 
-	employee := registerDTO.ToEntity(string(bytes))
+	account := registerDTO.ToEntity(string(bytes), roleID)
 
-	return s.employeeRepo.Create(employee)
+	return s.accountRepo.Create(account)
 }
 
-func (s *authService) Login(loginDTO dto.LoginDTO) (entities.Employee, error) {
-	employee, err := s.employeeRepo.FindByUsername(loginDTO.Username)
+func (s *authService) Login(loginDTO dto.LoginDTO, roleID uint) (entities.Account, error) {
+	account, err := s.accountRepo.FindByUsername(loginDTO.Username)
 	if err != nil {
 		log.Println("username")
-		return employee, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)
+		return account, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(employee.HashedPassword), []byte(loginDTO.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(account.HashedPassword), []byte(loginDTO.Password)); err != nil {
 		log.Println("password")
-		return employee, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)
+		return account, custom_error.NewUnauthorizedError(constants.CREDENTIAL_ERROR)
 	}
 
-	employee.IssueAt = time.Now()
-	if err := s.employeeRepo.Update(employee); err != nil {
-		return entities.Employee{}, err
+	if account.RoleID != roleID {
+		return account, custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
 
-	return employee, nil
+	account.IssueAt = time.Now()
+	if err := s.accountRepo.Update(account); err != nil {
+		return entities.Account{}, err
+	}
+
+	return account, nil
 }
