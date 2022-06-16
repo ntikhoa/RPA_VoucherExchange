@@ -14,7 +14,7 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(employee entities.Employee) (string, error)
+	GenerateToken(account entities.Account) (string, error)
 	ValidateToken(tokenString string) (*jwt.Token, error)
 }
 
@@ -28,18 +28,18 @@ func NewJWTService() JWTService {
 //because jwt library convert uint to float64
 //which cause trouble to manipulate data
 type jwtCustomClaims struct {
-	EmployeeID string `json:"employee_id"`
+	AccountID  string `json:"account_id"`
 	ProviderID string `json:"provider_id"`
 	IssueAt    string `json:"issue_at"`
 	jwt.RegisteredClaims
 }
 
-func (s *jwtService) GenerateToken(employee entities.Employee) (string, error) {
+func (s *jwtService) GenerateToken(account entities.Account) (string, error) {
 
 	claims := jwtCustomClaims{
-		EmployeeID: strconv.FormatUint(uint64(employee.Model.ID), 10),
-		ProviderID: strconv.FormatUint(uint64(employee.ProviderID), 10),
-		IssueAt:    employee.IssueAt.Format(constants.JWT_DATE_FORMAT),
+		AccountID:  strconv.FormatUint(uint64(account.Model.ID), 10),
+		ProviderID: strconv.FormatUint(uint64(account.ProviderID), 10),
+		IssueAt:    account.IssueAt.Format(constants.JWT_DATE_FORMAT),
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)), //1 week
 			Issuer:    "github.com/ntikhoa",

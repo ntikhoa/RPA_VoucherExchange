@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Employee struct {
+type Account struct {
 	gorm.Model
 	Username       string `gorm:"type:varchar(255); not null; UNIQUE"`
 	HashedPassword string `gorm:"type:varchar(255); not null"`

@@ -10,6 +10,6 @@ const (
 	PAGE_QUERY_KEY        = "page_query"
 	REGISTER_KEY          = "register_key"
 	LOGIN_KEY             = "login_key"
-	TOKEN_EMPLOYEE_ID_KEY = "token_employee_id_key"
+	TOKEN_ACCOUNT_ID_KEY  = "token_account_id_key"
 	TOKEN_PROVIDER_ID_KEY = "token_provider_id_key"
 )

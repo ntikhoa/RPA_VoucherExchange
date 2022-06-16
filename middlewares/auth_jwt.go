@@ -43,27 +43,27 @@ func AuthorizeJwt(db *gorm.DB) gin.HandlerFunc {
 				return
 			}
 
-			employeeIDStr := claims["employee_id"].(string)
-			employeeIDuint64, err := strconv.ParseUint(employeeIDStr, 10, 64)
+			accountIDStr := claims["account_id"].(string)
+			accountIDuint64, err := strconv.ParseUint(accountIDStr, 10, 64)
 			if err != nil {
 				ctx.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
-			employeeID := uint(employeeIDuint64)
+			accountID := uint(accountIDuint64)
 
-			employee, err := repositories.NewEmployeeRepo(db).FindEmployee(employeeID, providerID)
+			account, err := repositories.NewAccountRepo(db).FindAccount(accountID, providerID)
 			if err != nil {
 				ctx.AbortWithError(http.StatusUnauthorized, errors.New(constants.INVALID_TOKEN_ERROR))
 				return
 			}
 
-			if !(employee.IssueAt.Format(constants.JWT_DATE_FORMAT) == claims["issue_at"].(string)) {
+			if !(account.IssueAt.Format(constants.JWT_DATE_FORMAT) == claims["issue_at"].(string)) {
 				ctx.AbortWithError(http.StatusUnauthorized, errors.New(constants.INVALID_TOKEN_ERROR))
 				return
 			}
 
 			ctx.Set(configs.TOKEN_PROVIDER_ID_KEY, providerID)
-			ctx.Set(configs.TOKEN_EMPLOYEE_ID_KEY, employeeID)
+			ctx.Set(configs.TOKEN_ACCOUNT_ID_KEY, accountID)
 			ctx.Next()
 		} else {
 			log.Println(err)
