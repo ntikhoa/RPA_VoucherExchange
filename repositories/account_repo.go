@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/RPA_VoucherExchange/entities"
+	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +12,7 @@ type AccountRepo interface {
 	FindByUsername(username string) (entities.Account, error)
 	FindAccount(accountID uint, providerID uint) (entities.Account, error)
 	Count(providerID uint) (int64, error)
-	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Account, error)
+	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.AccountResponse, error)
 }
 
 type accountRepo struct {
@@ -58,9 +59,26 @@ func (repo *accountRepo) FindAccount(accountID uint, providerID uint) (entities.
 }
 
 func (repo *accountRepo) Count(providerID uint) (int64, error) {
-	return 10, nil
+	var count int64
+	err := repo.db.
+		Model(&entities.Account{ProviderID: providerID}).
+		Count(&count).
+		Error
+	return count, err
 }
 
-func (repo *accountRepo) FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Account, error) {
-	return []entities.Account{}, nil
+func (repo *accountRepo) FindAllWithPage(providerID uint,
+	page int,
+	perPage int) ([]viewmodel.AccountResponse, error) {
+
+	var accountsRes []viewmodel.AccountResponse
+	err := repo.db.
+		Model(&entities.Account{ProviderID: providerID}).
+		Preload("Role").
+		Limit(perPage).
+		Offset((page - 1) * perPage).
+		Find(&accountsRes).
+		Error
+
+	return accountsRes, err
 }

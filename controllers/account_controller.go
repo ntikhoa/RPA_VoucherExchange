@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -25,5 +28,20 @@ func (c *accountController) GetAccount(ctx *gin.Context) {
 	page := ctx.MustGet(configs.PAGE_QUERY_KEY).(int)
 	perPage := ctx.MustGet(configs.PER_PAGE_QUERY_KEY).(int)
 
-	c.service.FindAllWithPage(providerID, page, perPage)
+	metadata, accounts, err := c.service.FindAllWithPage(providerID, page, perPage)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"metadata": metadata,
+			"accounts": accounts,
+		},
+		"error":   nil,
+		"message": "Vouchers found successfully.",
+	})
 }
