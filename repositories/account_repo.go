@@ -10,6 +10,8 @@ type AccountRepo interface {
 	Update(account entities.Account) error
 	FindByUsername(username string) (entities.Account, error)
 	FindAccount(accountID uint, providerID uint) (entities.Account, error)
+	Count(providerID uint) (int64, error)
+	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Account, error)
 }
 
 type accountRepo struct {
@@ -53,4 +55,12 @@ func (repo *accountRepo) FindAccount(accountID uint, providerID uint) (entities.
 		Error
 
 	return account, err
+}
+
+func (repo *accountRepo) Count(providerID uint) (int64, error) {
+	return 10, nil
+}
+
+func (repo *accountRepo) FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Account, error) {
+	return []entities.Account{}, nil
 }
