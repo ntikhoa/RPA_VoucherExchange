@@ -5,7 +5,6 @@ import (
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
-	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 )
@@ -13,7 +12,7 @@ import (
 type AccountService interface {
 	FindAllWithPage(providerID uint,
 		page int,
-		perPage int) (viewmodel.PagingMetadata, []entities.Account, error)
+		perPage int) (viewmodel.PagingMetadata, []viewmodel.AccountResponse, error)
 }
 
 type accountService struct {
@@ -28,7 +27,7 @@ func NewAccountService(accountRepo repositories.AccountRepo) AccountService {
 
 func (s *accountService) FindAllWithPage(providerID uint,
 	page int,
-	perPage int) (viewmodel.PagingMetadata, []entities.Account, error) {
+	perPage int) (viewmodel.PagingMetadata, []viewmodel.AccountResponse, error) {
 	pagingMetadata := viewmodel.PagingMetadata{}
 
 	count, err := s.repo.Count(providerID)
