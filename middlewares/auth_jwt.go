@@ -64,6 +64,7 @@ func AuthorizeJwt(db *gorm.DB) gin.HandlerFunc {
 
 			ctx.Set(configs.TOKEN_PROVIDER_ID_KEY, providerID)
 			ctx.Set(configs.TOKEN_ACCOUNT_ID_KEY, accountID)
+			ctx.Set(configs.ACCOUNT_ROLE_ID_KEY, account.RoleID)
 			ctx.Next()
 		} else {
 			log.Println(err)

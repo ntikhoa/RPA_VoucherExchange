@@ -12,4 +12,5 @@ const (
 	LOGIN_KEY             = "login_key"
 	TOKEN_ACCOUNT_ID_KEY  = "token_account_id_key"
 	TOKEN_PROVIDER_ID_KEY = "token_provider_id_key"
+	ACCOUNT_ROLE_ID_KEY   = "account_role_id_key"
 )
