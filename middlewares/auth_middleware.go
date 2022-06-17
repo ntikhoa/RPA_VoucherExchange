@@ -1,10 +1,12 @@
 package middlewares
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/RPA_VoucherExchange/configs"
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/gin-gonic/gin"
 )
@@ -47,6 +49,18 @@ func ValidateRegisterSaleRequest() gin.HandlerFunc {
 		}
 		registerDTO := registerSaleDTO.ToRegisterDTO(providerID)
 		ctx.Set(configs.REGISTER_KEY, registerDTO)
+		ctx.Next()
+	}
+}
+
+func AuthorizeAdminRole() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		roleID := ctx.MustGet(configs.ACCOUNT_ROLE_ID_KEY).(uint)
+		if roleID != constants.ROLE_ADMIN {
+			ctx.AbortWithError(http.StatusForbidden, errors.New(constants.AUTHORIZE_ERROR))
+			return
+		}
+
 		ctx.Next()
 	}
 }

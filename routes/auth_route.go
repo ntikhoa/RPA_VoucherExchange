@@ -35,6 +35,7 @@ func AuthRoutes(g *gin.RouterGroup, db *gorm.DB) {
 
 	g.POST("/register_sales",
 		middlewares.AuthorizeJwt(db),
+		middlewares.AuthorizeAdminRole(),
 		middlewares.ValidateRegisterSaleRequest(),
 		func(ctx *gin.Context) {
 			controller.Register(ctx, constants.ROLE_SALE)
