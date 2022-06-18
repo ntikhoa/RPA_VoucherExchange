@@ -15,4 +15,10 @@ func AuthRoute(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.Login(ctx, constants.ROLE_SALE)
 		})
+
+	g.POST("/auto_login",
+		middlewares.AuthorizeJwt(db),
+		func(ctx *gin.Context) {
+			controller.AutoLogin(ctx)
+		})
 }
