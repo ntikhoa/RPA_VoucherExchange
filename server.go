@@ -6,6 +6,7 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
+	"github.com/RPA_VoucherExchange/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ var (
 
 func main() {
 	//for loading local .env file
-	// utils.LoadDotEnv()
+	utils.LoadDotEnv()
 
 	port := os.Getenv("PORT")
 	server := gin.New()
@@ -64,6 +65,10 @@ func main() {
 		apiAuthRoutes := apiRoutesV1.Group("/auth")
 		{
 			routes.AuthRoute(apiAuthRoutes, db)
+		}
+		apiExchangeRoutes := apiRoutesV1.Group("/exchange_voucher")
+		{
+			routes.ExchangeVoucherRoutes(apiExchangeRoutes)
 		}
 	}
 
