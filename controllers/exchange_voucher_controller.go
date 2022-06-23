@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 
 	"github.com/RPA_VoucherExchange/configs"
+	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,9 +27,15 @@ func (c *exchangeVoucherController) ExchangeVoucher(ctx *gin.Context) {
 	products := ctx.MustGet(configs.EDITED_PRODUCTS_KEY).([]string)
 	prices := ctx.MustGet(configs.EDITED_PRICES_KEY).([]uint)
 
-	for _, value := range files {
-		log.Println(value.Filename)
+	s3Service := services.NewImageService()
+	for _, file := range files {
+		fileName, err := s3Service.UploadObject(file)
+		if err != nil {
+			panic(err)
+		}
+		log.Println(fileName)
 	}
+
 	debugPrintParseStrReq(ocrProducts)
 	debugPrintParseUintReq(ocrPrices)
 	debugPrintParseStrReq(products)

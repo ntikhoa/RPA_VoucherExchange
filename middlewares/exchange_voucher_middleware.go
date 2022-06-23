@@ -14,7 +14,8 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
 
-		files := ctx.Request.MultipartForm.File["file"]
+		files := ctx.Request.MultipartForm.File["files"]
+
 		for _, file := range files {
 			mimeType := file.Header["Content-Type"][0]
 			if !isImageType(mimeType) {
