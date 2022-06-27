@@ -68,7 +68,7 @@ func main() {
 		}
 		apiExchangeRoutes := apiRoutesV1.Group("/exchange_voucher")
 		{
-			routes.ExchangeVoucherRoutes(apiExchangeRoutes)
+			routes.ExchangeVoucherRoutes(apiExchangeRoutes, db)
 		}
 	}
 
