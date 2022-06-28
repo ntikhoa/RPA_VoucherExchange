@@ -10,6 +10,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func ValidateViewExchangeVoucher() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
+
+		products, ok := ctx.Request.MultipartForm.Value["products"]
+		if !ok {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
+			return
+		}
+
+		prices, err := getUintArrayType(ctx, "prices")
+		if err != nil {
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		ctx.Set(configs.EDITED_PRODUCTS_KEY, products)
+		ctx.Set(configs.EDITED_PRICES_KEY, prices)
+
+		ctx.Next()
+	}
+}
+
 func ValidateExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB

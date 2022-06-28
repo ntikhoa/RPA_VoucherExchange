@@ -4,26 +4,31 @@ import (
 	"github.com/RPA_VoucherExchange/controllers"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
+	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+func initExchangeVoucherController(db *gorm.DB) controllers.ExchangeVoucherController {
+	repo := repositories.NewVoucherRepo(db)
+	service := services.NewExchangeVoucherService(repo)
+	return controllers.NewExchangeVoucherController(service)
+}
+
 func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
-	controller := controllers.NewExchangeVoucherController()
+	controller := initExchangeVoucherController(db)
 
 	g.POST("",
+		middlewares.AuthorizeJwt(db),
 		middlewares.ValidateExchangeVoucher(),
 		func(ctx *gin.Context) {
-			repo := repositories.NewVoucherRepo(db)
-			vouchers, err := repo.FindVoucherExchange(1)
-			if err != nil {
-				panic(err)
-			}
-			ctx.JSON(200, gin.H{
-				"data": vouchers,
-			})
-			return
 			controller.ExchangeVoucher(ctx)
+		})
 
+	g.POST("/view",
+		middlewares.AuthorizeJwt(db),
+		middlewares.ValidateViewExchangeVoucher(),
+		func(ctx *gin.Context) {
+			controller.ViewExchangeVoucher(ctx)
 		})
 }
