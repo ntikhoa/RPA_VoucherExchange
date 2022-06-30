@@ -18,17 +18,19 @@ func initExchangeVoucherController(db *gorm.DB) controllers.ExchangeVoucherContr
 func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	controller := initExchangeVoucherController(db)
 
-	g.POST("",
-		middlewares.AuthorizeJwt(db),
-		middlewares.ValidateExchangeVoucher(),
-		func(ctx *gin.Context) {
-			controller.ExchangeVoucher(ctx)
-		})
-
 	g.POST("/view",
 		middlewares.AuthorizeJwt(db),
 		middlewares.ValidateViewExchangeVoucher(),
 		func(ctx *gin.Context) {
 			controller.ViewExchangeVoucher(ctx)
 		})
+
+	g.POST("",
+		middlewares.AuthorizeJwt(db),
+		middlewares.ValidateViewExchangeVoucher(),
+		middlewares.ValidateExchangeVoucher(),
+		func(ctx *gin.Context) {
+			controller.ExchangeVoucher(ctx)
+		})
+
 }

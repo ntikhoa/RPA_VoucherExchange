@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/RPA_VoucherExchange/configs"
+	"github.com/RPA_VoucherExchange/dto"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,8 +27,12 @@ func ValidateViewExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set(configs.EDITED_PRODUCTS_KEY, products)
-		ctx.Set(configs.EDITED_PRICES_KEY, prices)
+		viewVoucherExchangeDTO := dto.ViewExchangeVoucherDTO{
+			Products: products,
+			Prices:   prices,
+		}
+
+		ctx.Set(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY, viewVoucherExchangeDTO)
 
 		ctx.Next()
 	}
@@ -47,36 +52,35 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			}
 		}
 
-		ocrProducts, ok := ctx.Request.MultipartForm.Value["ocr_products"]
-		if !ok {
-			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"ocr_products\" required"))
-			return
-		}
-
-		ocrPrices, err := getUintArrayType(ctx, "ocr_prices")
+		voucherID, err := getUintArrayType(ctx, "voucher_id")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 
-		products, ok := ctx.Request.MultipartForm.Value["products"]
-		if !ok {
-			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
+		customerName, ok := ctx.Request.MultipartForm.Value["customer_name"]
+		if !ok || len(customerName) < 1 {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"customer_name\" required"))
 			return
 		}
 
-		prices, err := getUintArrayType(ctx, "prices")
-		if err != nil {
-			ctx.AbortWithError(http.StatusBadRequest, err)
+		customerPhone, ok := ctx.Request.MultipartForm.Value["customer_phone"]
+		if !ok || len(customerPhone) < 1 {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"customer_phone\" required"))
 			return
+		}
+
+		viewVoucherExchangeDTO := ctx.MustGet(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY).(dto.ViewExchangeVoucherDTO)
+
+		exchangeVoucherDTO := dto.ExchangeVoucherDTO{
+			ViewExchangeVoucherDTO: viewVoucherExchangeDTO,
+			VoucherID:              voucherID[0],
+			CustomerName:           customerName[0],
+			CustomerPhone:          customerPhone[0],
 		}
 
 		ctx.Set(configs.RECEIPT_IMAGE_FILES_KEY, files)
-		ctx.Set(configs.ORIGINAL_PRODUCTS_KEY, ocrProducts)
-		ctx.Set(configs.ORIGINAL_PRICES_KEY, ocrPrices)
-		ctx.Set(configs.EDITED_PRODUCTS_KEY, products)
-		ctx.Set(configs.EDITED_PRICES_KEY, prices)
-
+		ctx.Set(configs.EXCHANGE_VOUCHER_DTO, exchangeVoucherDTO)
 		ctx.Next()
 	}
 }
@@ -90,7 +94,7 @@ func getUintArrayType(ctx *gin.Context, key string) ([]uint, error) {
 	for _, priceStr := range pricesStr {
 		price, err := strconv.ParseUint(priceStr, 10, 64)
 		if err != nil {
-			return nil, errors.New("\"" + key + "\" " + " invalid type")
+			return prices, errors.New("\"" + key + "\" " + " invalid type")
 		}
 		prices = append(prices, uint(price))
 	}

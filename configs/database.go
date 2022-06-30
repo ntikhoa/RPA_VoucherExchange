@@ -41,7 +41,7 @@ func (db *database) Init() {
 	db.connection.AutoMigrate(
 		&entities.Account{},
 		&entities.Provider{},
-		&entities.ReceiptStatus{},
+		&entities.CensorStatus{},
 		&entities.Receipt{},
 		&entities.ReceiptItem{},
 		&entities.Customer{},
@@ -69,18 +69,25 @@ func initEnum(db *gorm.DB) {
 		Description: "SALE",
 	})
 
-	db.Create(&entities.ReceiptStatus{
+	db.Create(&entities.CensorStatus{
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Description: "COMPLETE",
+		Description: "PENDING",
 	})
 
-	db.Create(&entities.ReceiptStatus{
+	db.Create(&entities.CensorStatus{
 		Model: gorm.Model{
 			ID: 2,
 		},
-		Description: "PENDING",
+		Description: "APPROVED",
+	})
+
+	db.Create(&entities.CensorStatus{
+		Model: gorm.Model{
+			ID: 3,
+		},
+		Description: "REJECTED",
 	})
 }
 
