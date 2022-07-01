@@ -42,21 +42,20 @@ func (s *imageService) UploadObject(file *multipart.FileHeader) (string, error) 
 
 	id := uuid.New()
 	file.Filename = id.String() + file.Filename
-	// f, err := file.Open()
-	// if err != nil {
-	// 	return "", err
-	// }
+	f, err := file.Open()
+	if err != nil {
+		return "", err
+	}
 
-	// fmt.Println("Uploading:", file.Filename)
-	// _, err = s.s3session.PutObject(&s3.PutObjectInput{
-	// 	Body:   f,
-	// 	Bucket: aws.String(s._BUCKET_NAME),
-	// 	Key:    aws.String(file.Filename),
-	// })
+	_, err = s.s3session.PutObject(&s3.PutObjectInput{
+		Body:   f,
+		Bucket: aws.String(s._BUCKET_NAME),
+		Key:    aws.String(file.Filename),
+	})
 
-	// if err != nil {
-	// 	return "", err
-	// }
+	if err != nil {
+		return "", err
+	}
 
 	return file.Filename, nil
 }

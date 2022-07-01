@@ -70,10 +70,17 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
+		transactionID, ok := ctx.Request.MultipartForm.Value["transaction_id"]
+		if !ok || len(customerPhone) < 1 {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"transaction_id\" required"))
+			return
+		}
+
 		viewVoucherExchangeDTO := ctx.MustGet(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY).(dto.ViewExchangeVoucherDTO)
 
 		exchangeVoucherDTO := dto.ExchangeVoucherDTO{
 			ViewExchangeVoucherDTO: viewVoucherExchangeDTO,
+			TransactionID:          transactionID[0],
 			VoucherID:              voucherID[0],
 			CustomerName:           customerName[0],
 			CustomerPhone:          customerPhone[0],

@@ -6,7 +6,7 @@ import (
 
 type Receipt struct {
 	gorm.Model
-	TransactionID string `gorm:"type:varchar(10); not null; index"`
+	TransactionID string `gorm:"type:varchar(10); not null; index; UNIQUE"`
 	StatusID      uint
 	Status        CensorStatus   `gorm:"foreignKey:StatusID"`
 	ReceiptItem   []ReceiptItem  `gorm:"foreignKey:ReceiptID"`

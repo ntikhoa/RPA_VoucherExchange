@@ -13,7 +13,7 @@ import (
 
 type ExchangeVoucherService interface {
 	ViewExchangeVoucher(providerID uint, viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO) ([]entities.Voucher, error)
-	ExchangeVoucher(providerID uint, viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO, voucherID uint) error
+	GetVoucherExchange(providerID uint, viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO, voucherID uint) error
 	checkVoucherRule(dto dto.ViewExchangeVoucherDTO,
 		vouchers []entities.Voucher,
 	) []entities.Voucher
@@ -29,6 +29,7 @@ func NewExchangeVoucherService(voucherRepo repositories.VoucherRepo) ExchangeVou
 	}
 }
 
+//Find all posible vouchers for a receipt
 func (s *exchangeVoucherService) ViewExchangeVoucher(
 	providerID uint,
 	dto dto.ViewExchangeVoucherDTO,
@@ -42,7 +43,8 @@ func (s *exchangeVoucherService) ViewExchangeVoucher(
 	return resVoucher, nil
 }
 
-func (s *exchangeVoucherService) ExchangeVoucher(providerID uint,
+//Check if the chosen voucher is satisfied with the receipt
+func (s *exchangeVoucherService) GetVoucherExchange(providerID uint,
 	viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO,
 	voucherID uint,
 ) error {

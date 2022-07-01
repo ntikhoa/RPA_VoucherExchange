@@ -10,9 +10,13 @@ import (
 )
 
 func initExchangeVoucherController(db *gorm.DB) controllers.ExchangeVoucherController {
-	repo := repositories.NewVoucherRepo(db)
-	service := services.NewExchangeVoucherService(repo)
-	return controllers.NewExchangeVoucherController(service)
+	voucherRepo := repositories.NewVoucherRepo(db)
+	receiptRepo := repositories.NewReceiptRepo(db)
+
+	evService := services.NewExchangeVoucherService(voucherRepo)
+	receiptService := services.NewReceiptService(receiptRepo)
+	imageService := services.NewImageService()
+	return controllers.NewExchangeVoucherController(evService, imageService, receiptService)
 }
 
 func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
