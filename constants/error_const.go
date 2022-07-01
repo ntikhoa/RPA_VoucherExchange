@@ -9,4 +9,5 @@ const (
 	USERNAME_DUPLICATE_ERROR  = "username is already exist"
 	CREDENTIAL_ERROR          = "invalid username or password"
 	INVALID_TOKEN_ERROR       = "invalid token"
+	INVALID_VOUCHER_ERROR     = "invalid voucher"
 )

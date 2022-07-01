@@ -9,5 +9,4 @@ type Customer struct {
 	Name      string `gorm:"type:varchar(255)"`
 	Phone     string `gorm:"type:varchar(12)"`
 	ReceiptID uint
-	Receipt   Receipt `gorm:"foreignKey:ReceiptID"`
 }

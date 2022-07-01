@@ -41,7 +41,7 @@ func (db *database) Init() {
 	db.connection.AutoMigrate(
 		&entities.Account{},
 		&entities.Provider{},
-		&entities.ReceiptStatus{},
+		&entities.CensorStatus{},
 		&entities.Receipt{},
 		&entities.ReceiptItem{},
 		&entities.Customer{},
@@ -69,18 +69,25 @@ func initEnum(db *gorm.DB) {
 		Description: "SALE",
 	})
 
-	db.Create(&entities.ReceiptStatus{
+	db.Create(&entities.CensorStatus{
 		Model: gorm.Model{
 			ID: 1,
 		},
-		Description: "COMPLETE",
+		Description: "PENDING",
 	})
 
-	db.Create(&entities.ReceiptStatus{
+	db.Create(&entities.CensorStatus{
 		Model: gorm.Model{
 			ID: 2,
 		},
-		Description: "PENDING",
+		Description: "APPROVED",
+	})
+
+	db.Create(&entities.CensorStatus{
+		Model: gorm.Model{
+			ID: 3,
+		},
+		Description: "REJECTED",
 	})
 }
 
@@ -98,16 +105,16 @@ func (db *database) CloseDB() {
 
 func (db *database) getURL() string {
 	//for local db instance
-	// password := os.Getenv("LOCAL_DB_PASSWORD")
-	// dsn := "root:" + password + "@tcp(127.0.0.1:3306)/rpa_voucher_exchange?charset=utf8mb4&parseTime=True&loc=Local"
-	// return dsn
+	password := os.Getenv("LOCAL_DB_PASSWORD")
+	dsn := "root:" + password + "@tcp(127.0.0.1:3306)/rpa_voucher_exchange?charset=utf8mb4&parseTime=True&loc=Local"
+	return dsn
 
 	//for remote db instance
-	username := os.Getenv("REMOTE_DB_USERNAME")
-	password := os.Getenv("REMOTE_DB_PASSWORD")
-	hostname := "@tcp(" + os.Getenv("REMOTE_DB_HOST") + ")"
-	dbName := os.Getenv("REMOTE_DB_NAME")
-	option := "?charset=utf8mb4&parseTime=True&loc=Local"
-	dsn := username + ":" + password + hostname + "/" + dbName + option
-	return dsn
+	// username := os.Getenv("REMOTE_DB_USERNAME")
+	// password := os.Getenv("REMOTE_DB_PASSWORD")
+	// hostname := "@tcp(" + os.Getenv("REMOTE_DB_HOST") + ")"
+	// dbName := os.Getenv("REMOTE_DB_NAME")
+	// option := "?charset=utf8mb4&parseTime=True&loc=Local"
+	// dsn := username + ":" + password + hostname + "/" + dbName + option
+	// return dsn
 }
