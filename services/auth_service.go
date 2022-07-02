@@ -56,7 +56,7 @@ func (s *authService) Register(registerDTO dto.RegisterDTO, roleID uint) error {
 		return err
 	}
 
-	account := registerDTO.ToEntity(string(bytes), roleID)
+	account := entities.NewAccount(registerDTO, string(bytes), roleID)
 
 	return s.accountRepo.Create(account)
 }

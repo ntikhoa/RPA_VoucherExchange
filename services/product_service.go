@@ -40,12 +40,12 @@ func NewProductService(repo repositories.ProductRepo) ProductService {
 }
 
 func (s *productService) Create(productDTO dto.ProductDTO, providerID uint) error {
-	product := productDTO.ToEntity(providerID)
+	product := entities.NewProduct(productDTO, providerID)
 	return s.repo.Create(product)
 }
 
 func (s *productService) Update(productDTO dto.ProductDTO, providerID uint, productID uint) error {
-	product := productDTO.ToEntity(providerID)
+	product := entities.NewProduct(productDTO, providerID)
 	product.Model.ID = productID
 	fetchedProduct, err := s.repo.FindByID(product.Model.ID)
 	if err != nil {

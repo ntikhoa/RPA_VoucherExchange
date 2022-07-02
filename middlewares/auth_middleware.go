@@ -47,7 +47,7 @@ func ValidateRegisterSaleRequest() gin.HandlerFunc {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		registerDTO := registerSaleDTO.ToRegisterDTO(providerID)
+		registerDTO := dto.NewRegisterDTO(registerSaleDTO, providerID)
 		ctx.Set(configs.REGISTER_KEY, registerDTO)
 		ctx.Next()
 	}

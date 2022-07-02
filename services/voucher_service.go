@@ -36,12 +36,12 @@ func NewVoucherService(voucherRepo repositories.VoucherRepo) VoucherService {
 }
 
 func (s *voucherService) Create(voucherDTO dto.VoucherDTO, providerID uint) error {
-	voucher := voucherDTO.ToEntity(providerID)
+	voucher := entities.NewVoucher(voucherDTO, providerID)
 	return s.voucherRepo.Create(voucher)
 }
 
 func (s *voucherService) Update(voucherDTO dto.VoucherDTO, providerID uint, voucherID uint) error {
-	voucher := voucherDTO.ToEntity(providerID)
+	voucher := entities.NewVoucher(voucherDTO, providerID)
 	voucher.Model.ID = voucherID
 
 	//authorize

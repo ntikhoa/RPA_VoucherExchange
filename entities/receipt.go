@@ -1,6 +1,8 @@
 package entities
 
 import (
+	"github.com/RPA_VoucherExchange/constants"
+	"github.com/RPA_VoucherExchange/dto"
 	"gorm.io/gorm"
 )
 
@@ -15,4 +17,25 @@ type Receipt struct {
 	Customer      Customer       `gorm:"foreignKey:ReceiptID"`
 	AccountID     uint
 	Account       Account `gorm:"foreignKey:AccountID"`
+}
+
+func NewReceipt(dto dto.ExchangeVoucherDTO, filesNames []string, accountID uint) Receipt {
+
+	receiptItems := NewReceiptItems(dto.ViewExchangeVoucherDTO)
+	receiptImages := NewReceiptImages(filesNames)
+
+	voucher := []Voucher{{Model: gorm.Model{ID: dto.VoucherID}}}
+
+	return Receipt{
+		StatusID:      constants.STATUS_PENDING,
+		TransactionID: dto.TransactionID,
+		ReceiptItem:   receiptItems,
+		Voucher:       voucher,
+		ReceiptImage:  receiptImages,
+		Customer: Customer{
+			Name:  dto.CustomerName,
+			Phone: dto.CustomerPhone,
+		},
+		AccountID: accountID,
+	}
 }
