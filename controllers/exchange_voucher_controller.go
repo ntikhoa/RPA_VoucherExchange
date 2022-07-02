@@ -64,14 +64,11 @@ func (c *exchangeVoucherController) ExchangeVoucher(ctx *gin.Context) {
 		return
 	}
 
-	var filesName []string
-	for _, file := range files {
-		fileName, err := c.imageService.UploadObject(file)
-		if err != nil {
-			ctx.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-		filesName = append(filesName, fileName)
+	filesName, err := c.imageService.UploadObjects(files)
+	if err != nil {
+		log.Println(err)
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	if err := c.receiptService.Create(dto, filesName, accountID); err != nil {

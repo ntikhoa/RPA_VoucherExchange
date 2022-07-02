@@ -68,6 +68,7 @@ func main() {
 		}
 		apiExchangeRoutes := apiRoutesV1.Group("/exchange_voucher")
 		{
+			apiExchangeRoutes.Use(middlewares.AuthorizeJwt(db))
 			routes.ExchangeVoucherRoutes(apiExchangeRoutes, db)
 		}
 	}
