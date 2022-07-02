@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/RPA_VoucherExchange/dto"
+	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 )
 
@@ -20,6 +21,6 @@ func NewReceiptService(repo repositories.ReceiptRepo) ReceiptService {
 }
 
 func (s *receiptService) Create(dto dto.ExchangeVoucherDTO, filesName []string, accountID uint) error {
-	receipt := dto.ToEntitiy(filesName, accountID)
+	receipt := entities.NewReceipt(dto, filesName, accountID)
 	return s.repo.Create(receipt)
 }
