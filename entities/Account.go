@@ -19,23 +19,12 @@ type Account struct {
 	IssueAt        time.Time
 }
 
-func NewAccountAdmin(dto dto.RegisterDTO, hashedPassword string, role uint) Account {
+func NewAccount(dto dto.RegisterDTO, hashedPassword string, role uint) Account {
 	return Account{
 		Username:       dto.Username,
 		HashedPassword: hashedPassword,
 		Name:           dto.Name,
 		ProviderID:     dto.ProviderID,
-		RoleID:         role,
-		IssueAt:        time.Now(),
-	}
-}
-
-func NewAccountSale(dto dto.RegisterSaleDTO, hashedPassword string, role uint, providerID uint) Account {
-	return Account{
-		Username:       dto.Username,
-		HashedPassword: hashedPassword,
-		Name:           dto.Name,
-		ProviderID:     providerID,
 		RoleID:         role,
 		IssueAt:        time.Now(),
 	}

@@ -19,21 +19,10 @@ type Receipt struct {
 	Account       Account `gorm:"foreignKey:AccountID"`
 }
 
-func NewReceipt(dto dto.ExchangeVoucherDTO, filesName []string, accountID uint) Receipt {
-	var receiptItems []ReceiptItem
-	for i := range dto.ViewExchangeVoucherDTO.Products {
-		receiptItems = append(receiptItems, ReceiptItem{
-			Name:   dto.ViewExchangeVoucherDTO.Products[i],
-			Amount: dto.ViewExchangeVoucherDTO.Prices[i],
-		})
-	}
+func NewReceipt(dto dto.ExchangeVoucherDTO, filesNames []string, accountID uint) Receipt {
 
-	var receiptImages []ReceiptImage
-	for _, fileName := range filesName {
-		receiptImages = append(receiptImages, ReceiptImage{
-			Url: fileName,
-		})
-	}
+	receiptItems := NewReceiptItems(dto.ViewExchangeVoucherDTO)
+	receiptImages := NewReceiptImages(filesNames)
 
 	voucher := []Voucher{{Model: gorm.Model{ID: dto.VoucherID}}}
 
