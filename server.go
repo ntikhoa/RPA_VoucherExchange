@@ -59,6 +59,13 @@ func main() {
 				apiAccountRoutes.Use(middlewares.AuthorizeAdminRole())
 				routes.AccountRoutes(apiAccountRoutes, db)
 			}
+
+			apiTransaction := apiAdminRoutes.Group("/transactions")
+			{
+				apiTransaction.Use(middlewares.AuthorizeJwt(db))
+				apiTransaction.Use(middlewares.AuthorizeAdminRole())
+				routes.TransactionRoutes(apiTransaction, db)
+			}
 		}
 
 		apiAuthRoutes := apiRoutesV1.Group("/auth")
