@@ -41,6 +41,12 @@ func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 			controller.FindAll(ctx)
 		})
 
+	g.GET("/search",
+		middlewares.GetVoucherNameFromUrl(),
+		func(ctx *gin.Context) {
+			controller.FindByName(ctx)
+		})
+
 	g.DELETE(":id",
 		middlewares.GetIDFromURL(),
 		func(ctx *gin.Context) {

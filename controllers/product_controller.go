@@ -17,6 +17,7 @@ type ProductController interface {
 	DeleteProducts(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	FindByName(ctx *gin.Context)
 	GetAll(ctx *gin.Context)
 }
 
@@ -168,4 +169,21 @@ func (c *productController) DeleteProducts(ctx *gin.Context) {
 		"error":   nil,
 		"message": "Products deleted successfully.",
 	})
+}
+
+func (c *productController) FindByName(ctx *gin.Context) {
+	productName := ctx.MustGet(configs.PRODUCT_NAME_KEY).(string)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	products, err := c.productService.FindByName(productName, providerID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"products": products},
+		"error":   nil,
+		"message": "Found requested products."})
 }

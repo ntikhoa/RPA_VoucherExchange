@@ -15,6 +15,7 @@ type VoucherController interface {
 	Update(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
+	FindByName(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 	Publish(ctx *gin.Context)
 }
@@ -123,6 +124,26 @@ func (c *voucherController) FindAll(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Vouchers found successfully.",
+	})
+}
+
+func (c *voucherController) FindByName(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	voucherName := ctx.MustGet(configs.VOUCHER_NAME_KEY).(string)
+	responses, err := c.voucherService.FindByName(voucherName, providerID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"vouchers": responses,
+		},
+		"error":   nil,
+		"message": "Found requested voucher.",
 	})
 }
 

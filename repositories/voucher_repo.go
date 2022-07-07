@@ -15,6 +15,8 @@ type VoucherRepo interface {
 	Count(providerID uint) (int64, error)
 	Publish(voucherID uint, published bool) error
 	FindVoucherExchange(providerID uint, productsName []string) ([]entities.Voucher, error)
+	FindByName(voucherName string, providerID uint) ([]viewmodel.VoucherResponse, error)
+	// FindByDescription(voucherDescription string) ([]entities.Voucher, error)
 }
 
 type voucherRepo struct {
@@ -88,6 +90,19 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 		Find(&vouchersRes).
 		Error
 	return vouchersRes, err
+}
+
+func (r *voucherRepo) FindByName(voucherName string, providerID uint) ([]viewmodel.VoucherResponse, error) {
+	var reponses []viewmodel.VoucherResponse
+	err := r.db.
+		Model(&entities.Voucher{}).
+		Where(&entities.Voucher{
+			Name:       voucherName,
+			ProviderID: providerID,
+		}).
+		Find(&reponses).
+		Error
+	return reponses, err
 }
 
 func (r *voucherRepo) Delete(voucherID uint) error {
