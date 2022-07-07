@@ -8,12 +8,12 @@ import (
 
 type Receipt struct {
 	gorm.Model
-	TransactionID string `gorm:"type:varchar(10); not null; index; UNIQUE"`
+	TransactionID string `gorm:"type:varchar(10); not null; index"`
 	StatusID      uint
 	Status        CensorStatus   `gorm:"foreignKey:StatusID"`
-	ReceiptItem   []ReceiptItem  `gorm:"foreignKey:ReceiptID"`
+	ReceiptItems  []ReceiptItem  `gorm:"foreignKey:ReceiptID"`
 	Voucher       []Voucher      `gorm:"many2many:receipt_voucher"`
-	ReceiptImage  []ReceiptImage `gorm:"foreignKey:ReceiptID"`
+	ReceiptImages []ReceiptImage `gorm:"foreignKey:ReceiptID"`
 	Customer      Customer       `gorm:"foreignKey:ReceiptID"`
 	AccountID     uint
 	Account       Account `gorm:"foreignKey:AccountID"`
@@ -29,9 +29,9 @@ func NewReceipt(dto dto.ExchangeVoucherDTO, filesNames []string, accountID uint)
 	return Receipt{
 		StatusID:      constants.STATUS_PENDING,
 		TransactionID: dto.TransactionID,
-		ReceiptItem:   receiptItems,
+		ReceiptItems:  receiptItems,
 		Voucher:       voucher,
-		ReceiptImage:  receiptImages,
+		ReceiptImages: receiptImages,
 		Customer: Customer{
 			Name:  dto.CustomerName,
 			Phone: dto.CustomerPhone,
