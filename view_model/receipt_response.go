@@ -14,11 +14,16 @@ type ReceiptListRes struct {
 }
 
 func NewReceiptListRes(entity entities.Receipt) ReceiptListRes {
+	account := ""
+	if len(entity.Voucher) > 0 {
+		account = entity.Voucher[0].Name
+	}
+
 	return ReceiptListRes{
 		Model:         entity.Model,
 		TransactionID: entity.TransactionID,
 		Status:        entity.Status,
-		Voucher:       entity.Voucher[0].Name,
+		Voucher:       account,
 		Account:       entity.Account.Username,
 	}
 }

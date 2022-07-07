@@ -121,6 +121,7 @@ func (r *voucherRepo) FindVoucherExchange(providerID uint, productsName []string
 			"product_name IN (?) AND provider_id = ?",
 			productsName,
 			providerID).
+		Where("published = ?", true).
 		Find(&vouchers).
 		Error
 	return vouchers, err

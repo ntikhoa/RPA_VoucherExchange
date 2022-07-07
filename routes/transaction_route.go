@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/RPA_VoucherExchange/controllers"
+	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/repositories"
 	"github.com/RPA_VoucherExchange/services"
 	"github.com/gin-gonic/gin"
@@ -9,15 +10,17 @@ import (
 )
 
 func initTransactionController(db *gorm.DB) controllers.TransactionController {
-	repo := repositories.NewTransactionRepo(db)
-	service := services.NewTransactionService(repo)
+	repo := repositories.NewReceiptRepo(db)
+	service := services.NewReceiptService(repo)
 	return controllers.NewTransactionController(service)
 }
 
 func TransactionRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	controller := initTransactionController(db)
 
-	g.GET("", func(ctx *gin.Context) {
-		controller.FindAll(ctx)
-	})
+	g.GET("",
+		middlewares.GetPageFromURL(),
+		func(ctx *gin.Context) {
+			controller.FindAll(ctx)
+		})
 }
