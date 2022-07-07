@@ -6,6 +6,7 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/middlewares"
 	"github.com/RPA_VoucherExchange/routes"
+	"github.com/RPA_VoucherExchange/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +16,7 @@ var (
 
 func main() {
 	//for loading local .env file
-	// utils.LoadDotEnv()
+	utils.LoadDotEnv()
 
 	port := os.Getenv("PORT")
 	server := gin.New()
@@ -25,6 +26,7 @@ func main() {
 	// conn.Init()
 	db := conn.GetDB()
 	// utils.SeedProducts(db)
+	// utils.SeedVouchers(db, 1)
 
 	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())

@@ -86,7 +86,7 @@ func (s *exchangeVoucherService) checkVoucherRule(
 		}
 		if totalPrices >= voucher.TotalPriceMin {
 			if voucher.TotalPriceMax != 0 {
-				if totalPrices <= voucher.TotalPriceMax {
+				if totalPrices < voucher.TotalPriceMax {
 					resVoucher = append(resVoucher, voucher)
 				}
 			} else {
