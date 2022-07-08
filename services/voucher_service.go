@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"math"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -83,24 +82,30 @@ func (s *voucherService) FindAllWithPage(
 	page int,
 	perPage int,
 ) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error) {
-	var pagingMetadata viewmodel.PagingMetadata
 
-	count, err := s.voucherRepo.Count(providerID)
+	pagingMetadata, err := paging(s.voucherRepo.Count, providerID, page, perPage)
 	if err != nil {
 		return pagingMetadata, nil, err
 	}
-	d := float64(count) / float64(perPage)
-	totalPages := int(math.Ceil(d))
-	if page > totalPages {
-		return pagingMetadata, nil, custom_error.NewNotFoundError(constants.EXHAUSTED_ERROR)
-	}
 
-	pagingMetadata = viewmodel.PagingMetadata{
-		Page:         page,
-		PerPage:      perPage,
-		TotalPages:   totalPages,
-		TotalRecords: int(count),
-	}
+	// var pagingMetadata viewmodel.PagingMetadata
+
+	// count, err := s.voucherRepo.Count(providerID)
+	// if err != nil {
+	// 	return pagingMetadata, nil, err
+	// }
+	// d := float64(count) / float64(perPage)
+	// totalPages := int(math.Ceil(d))
+	// if page > totalPages {
+	// 	return pagingMetadata, nil, custom_error.NewNotFoundError(constants.EXHAUSTED_ERROR)
+	// }
+
+	// pagingMetadata = viewmodel.PagingMetadata{
+	// 	Page:         page,
+	// 	PerPage:      perPage,
+	// 	TotalPages:   totalPages,
+	// 	TotalRecords: int(count),
+	// }
 
 	vouchers, err := s.voucherRepo.FindAllWithPage(providerID, page, perPage)
 	return pagingMetadata, vouchers, err
