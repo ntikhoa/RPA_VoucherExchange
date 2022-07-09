@@ -38,7 +38,6 @@ func (s *exchangeVoucherService) ViewExchangeVoucher(
 	if err != nil {
 		return nil, err
 	}
-
 	resVoucher := s.checkVoucherRule(dto, vouchers)
 	return resVoucher, nil
 }
