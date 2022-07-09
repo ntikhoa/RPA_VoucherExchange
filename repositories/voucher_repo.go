@@ -118,10 +118,9 @@ func (r *voucherRepo) FindVoucherExchange(providerID uint, productsName []string
 	err := r.db.
 		Preload("Gift").
 		Preload("Products",
-			"product_name IN (?) AND provider_id = ?",
-			productsName,
-			providerID).
-		Where("published = ?", true).
+			"product_name IN (?)",
+			productsName).
+		Where("published = ?  AND provider_id = ?", true, providerID).
 		Find(&vouchers).
 		Error
 	return vouchers, err

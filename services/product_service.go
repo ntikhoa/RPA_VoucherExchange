@@ -83,22 +83,6 @@ func (s *productService) FindAllWithPage(providerID uint, page int, perPage int)
 		return pagingMetadata, nil, err
 	}
 
-	// count, err := s.repo.Count(providerID)
-	// if err != nil {
-	// 	return pagingMetadata, nil, err
-	// }
-	// d := float64(count) / float64(perPage)
-	// totalPages := int(math.Ceil(d))
-	// if page > totalPages {
-	// 	return pagingMetadata, nil, custom_error.NewNotFoundError(constants.EXHAUSTED_ERROR)
-	// }
-
-	// pagingMetadata = viewmodel.PagingMetadata{
-	// 	Page:         page,
-	// 	PerPage:      perPage,
-	// 	TotalPages:   totalPages,
-	// 	TotalRecords: int(count),
-	// }
 	products, err := s.repo.FindAllWithPage(providerID, page, perPage)
 	return pagingMetadata, products, err
 }

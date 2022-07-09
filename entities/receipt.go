@@ -8,15 +8,15 @@ import (
 
 type Receipt struct {
 	gorm.Model
-	TransactionID string `gorm:"type:varchar(10); not null; index"`
-	StatusID      uint
+	TransactionID string         `gorm:"type:varchar(10); not null; index"`
+	StatusID      uint           `json:"-"`
 	Status        CensorStatus   `gorm:"foreignKey:StatusID"`
 	ReceiptItems  []ReceiptItem  `gorm:"foreignKey:ReceiptID"`
 	Voucher       []Voucher      `gorm:"many2many:receipt_voucher"`
 	ReceiptImages []ReceiptImage `gorm:"foreignKey:ReceiptID"`
 	Customer      Customer       `gorm:"foreignKey:ReceiptID"`
-	AccountID     uint
-	Account       Account `gorm:"foreignKey:AccountID"`
+	AccountID     uint           `json:"-"`
+	Account       Account        `json:"-" gorm:"foreignKey:AccountID"`
 }
 
 func NewReceipt(dto dto.ExchangeVoucherDTO, filesNames []string, accountID uint) Receipt {
