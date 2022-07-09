@@ -13,6 +13,7 @@ import (
 type TransactionController interface {
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
+	Censor(ctx *gin.Context)
 }
 
 type transactionController struct {
@@ -65,5 +66,24 @@ func (c *transactionController) FindByID(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Vouchers found successfully.",
+	})
+}
+
+func (c *transactionController) Censor(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	receiptId := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	isApproved := ctx.MustGet(configs.IS_APPROVED_KEY).(bool)
+
+	if err := c.service.Censor(providerID, receiptId, isApproved); err != nil {
+		log.Print(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Transaction censored successfully.",
 	})
 }

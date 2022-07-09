@@ -10,6 +10,8 @@ type ReceiptRepo interface {
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint) ([]entities.Receipt, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
+	FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error)
+	UpdateCensorStatus(receiptID uint, statusID uint) error
 }
 
 type receiptRepo struct {
@@ -66,7 +68,7 @@ func (r *receiptRepo) FindByID(providerID uint, receiptID uint) (entities.Receip
 		Preload("Voucher.Gift").
 		Preload("ReceiptImages").
 		Preload("Customer").
-		Preload("Account", "provider_id = ?", providerID).
+		Preload("Account").
 		Preload("Account.Role").
 		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id").
 		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
@@ -74,4 +76,22 @@ func (r *receiptRepo) FindByID(providerID uint, receiptID uint) (entities.Receip
 		Error
 
 	return receipt, err
+}
+
+func (r *receiptRepo) FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error) {
+	receipt := entities.Receipt{Model: gorm.Model{ID: receiptID}}
+	err := r.db.
+		Model(&receipt).
+		Preload("Account").
+		First(&receipt).
+		Error
+
+	return receipt, err
+}
+
+func (r *receiptRepo) UpdateCensorStatus(receiptID uint, statusID uint) error {
+	return r.db.
+		Model(&entities.Receipt{Model: gorm.Model{ID: receiptID}}).
+		Update("status_id", statusID).
+		Error
 }
