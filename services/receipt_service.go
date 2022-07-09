@@ -1,10 +1,16 @@
 package services
 
 import (
+	"errors"
+	"log"
+
+	"github.com/RPA_VoucherExchange/constants"
+	"github.com/RPA_VoucherExchange/custom_error"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
+	"gorm.io/gorm"
 )
 
 type ReceiptService interface {
@@ -12,6 +18,7 @@ type ReceiptService interface {
 	FindAll(providerID uint,
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
+	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
 }
 
 type receiptService struct {
@@ -38,25 +45,6 @@ func (s *receiptService) FindAll(providerID uint,
 		return pagingMetadata, nil, err
 	}
 
-	// var pagingMetadata viewmodel.PagingMetadata
-
-	// count, err := s.repo.Count(providerID)
-	// if err != nil {
-	// 	return pagingMetadata, nil, err
-	// }
-	// d := float64(count) / float64(perPage)
-	// totalPages := int(math.Ceil(d))
-	// if page > totalPages {
-	// 	return pagingMetadata, nil, custom_error.NewNotFoundError(constants.EXHAUSTED_ERROR)
-	// }
-
-	// pagingMetadata = viewmodel.PagingMetadata{
-	// 	Page:         page,
-	// 	PerPage:      perPage,
-	// 	TotalPages:   totalPages,
-	// 	TotalRecords: int(count),
-	// }
-
 	receipts, err := s.repo.FindAllWithPage(providerID)
 	if err != nil {
 		return pagingMetadata, nil, err
@@ -65,4 +53,17 @@ func (s *receiptService) FindAll(providerID uint,
 	receiptsRes := viewmodel.NewSliceReceiptListRes(receipts)
 
 	return pagingMetadata, receiptsRes, nil
+}
+
+func (s *receiptService) FindByID(providerID uint, receiptID uint) (entities.Receipt, error) {
+	receipt, err := s.repo.FindByID(providerID, receiptID)
+	if err != nil {
+		log.Println(err)
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return receipt, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
+		}
+		return receipt, err
+	}
+
+	return receipt, nil
 }

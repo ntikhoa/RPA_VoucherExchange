@@ -9,7 +9,7 @@ type ReceiptItem struct {
 	gorm.Model
 	Name      string `gorm:"type:varchar(255); not null"`
 	Amount    uint   `gorm:"not null"`
-	ReceiptID uint
+	ReceiptID uint   `json:"-"`
 }
 
 func NewReceiptItems(dto dto.ViewExchangeVoucherDTO) []ReceiptItem {

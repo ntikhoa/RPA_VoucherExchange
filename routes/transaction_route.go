@@ -23,4 +23,10 @@ func TransactionRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.FindAll(ctx)
 		})
+
+	g.GET("/:id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			controller.FindByID(ctx)
+		})
 }

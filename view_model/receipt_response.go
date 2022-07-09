@@ -24,7 +24,7 @@ func NewReceiptListRes(entity entities.Receipt) ReceiptListRes {
 		TransactionID: entity.TransactionID,
 		Status:        entity.Status,
 		Voucher:       account,
-		Account:       entity.Account.Username,
+		Account:       entity.Account.Name,
 	}
 }
 

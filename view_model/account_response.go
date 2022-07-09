@@ -1,19 +1,23 @@
 package viewmodel
 
 import (
-	"time"
-
 	"github.com/RPA_VoucherExchange/entities"
 	"gorm.io/gorm"
 )
 
 type AccountResponse struct {
-	ID        uint
-	Username  string
-	Name      string
-	RoleID    uint
-	Role      entities.Role `gorm:"foreignKey:RoleID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
+	gorm.Model
+	Username string
+	Name     string
+	RoleID   uint          `json:"-"`
+	Role     entities.Role `gorm:"foreignKey:RoleID"`
+}
+
+func NewAccountResponse(entity entities.Account) AccountResponse {
+	return AccountResponse{
+		Model:    entity.Model,
+		Username: entity.Username,
+		Name:     entity.Name,
+		Role:     entity.Role,
+	}
 }
