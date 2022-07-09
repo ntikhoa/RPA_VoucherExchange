@@ -29,4 +29,10 @@ func TransactionRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.FindByID(ctx)
 		})
+	g.PUT("/:id",
+		middlewares.GetIDFromURL(),
+		middlewares.ValidateCensorRequest(),
+		func(ctx *gin.Context) {
+			controller.Censor(ctx)
+		})
 }

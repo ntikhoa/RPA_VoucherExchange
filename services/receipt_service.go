@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"log"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -19,6 +18,7 @@ type ReceiptService interface {
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
+	Censor(providerID uint, receiptID uint, isApproved bool) error
 }
 
 type receiptService struct {
@@ -58,7 +58,6 @@ func (s *receiptService) FindAll(providerID uint,
 func (s *receiptService) FindByID(providerID uint, receiptID uint) (entities.Receipt, error) {
 	receipt, err := s.repo.FindByID(providerID, receiptID)
 	if err != nil {
-		log.Println(err)
 		if errors.Is(gorm.ErrRecordNotFound, err) {
 			return receipt, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
 		}
@@ -66,4 +65,25 @@ func (s *receiptService) FindByID(providerID uint, receiptID uint) (entities.Rec
 	}
 
 	return receipt, nil
+}
+
+func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool) error {
+	receipt, err := s.repo.FindByIDWithoutJoin(providerID, receiptID)
+	if err != nil {
+		if errors.Is(gorm.ErrRecordNotFound, err) {
+			return custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
+		}
+		return err
+	}
+
+	if receipt.Account.ProviderID != providerID {
+		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
+	}
+
+	statusID := constants.STATUS_REJECTED
+	if isApproved {
+		statusID = constants.STATUS_APPROVED
+	}
+
+	return s.repo.UpdateCensorStatus(receiptID, statusID)
 }
