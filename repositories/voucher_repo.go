@@ -131,11 +131,12 @@ func (r *voucherRepo) FindVoucherExchange(providerID uint, productsName []string
 	var vouchers []entities.Voucher
 
 	err := r.db.
+		Model(&vouchers).
 		Preload("Gift").
-		Preload("Products",
-			"product_name IN (?) AND provider_id = ?",
-			productsName,
-			providerID).
+		Preload("Products").
+		Joins("JOIN voucher_products ON voucher_products.voucher_id = vouchers.id AND vouchers.published = ? AND vouchers.provider_id = ?", true, providerID).
+		Joins("JOIN products ON voucher_products.product_id = products.id AND products.product_name IN (?)", productsName).
+		Distinct().
 		Find(&vouchers).
 		Error
 	return vouchers, err

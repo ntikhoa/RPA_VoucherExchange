@@ -38,7 +38,6 @@ func (s *exchangeVoucherService) ViewExchangeVoucher(
 	if err != nil {
 		return nil, err
 	}
-
 	resVoucher := s.checkVoucherRule(dto, vouchers)
 	return resVoucher, nil
 }
@@ -86,7 +85,7 @@ func (s *exchangeVoucherService) checkVoucherRule(
 		}
 		if totalPrices >= voucher.TotalPriceMin {
 			if voucher.TotalPriceMax != 0 {
-				if totalPrices <= voucher.TotalPriceMax {
+				if totalPrices < voucher.TotalPriceMax {
 					resVoucher = append(resVoucher, voucher)
 				}
 			} else {

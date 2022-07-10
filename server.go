@@ -25,6 +25,7 @@ func main() {
 	// conn.Init()
 	db := conn.GetDB()
 	// utils.SeedProducts(db)
+	// utils.SeedVouchers(db, 1)
 
 	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
@@ -58,6 +59,13 @@ func main() {
 				apiAccountRoutes.Use(middlewares.AuthorizeJwt(db))
 				apiAccountRoutes.Use(middlewares.AuthorizeAdminRole())
 				routes.AccountRoutes(apiAccountRoutes, db)
+			}
+
+			apiTransaction := apiAdminRoutes.Group("/transactions")
+			{
+				apiTransaction.Use(middlewares.AuthorizeJwt(db))
+				apiTransaction.Use(middlewares.AuthorizeAdminRole())
+				routes.TransactionRoutes(apiTransaction, db)
 			}
 		}
 
