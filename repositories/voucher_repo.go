@@ -4,6 +4,7 @@ import (
 	"github.com/RPA_VoucherExchange/entities"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type VoucherRepo interface {
@@ -95,15 +96,15 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 func (r *voucherRepo) Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error) {
 	var vouchers []viewmodel.VoucherResponse
 	query = "%" + query + "%"
+
+	sql := `CASE WHEN name LIKE ? THEN 1 WHEN  description LIKE ? THEN 3 ELSE 2 END`
+
 	err := r.db.
 		Model(&entities.Voucher{}).
 		Where("provider_id = ? AND name LIKE ? OR description LIKE ?", providerID, query, query).
-		Raw(`ORDER BY
-				CASE
-				WHEN name LIKE ? THEN 1
-				WHEN  description LIKE ? THEN 3
-				ELSE 2
-				END`, query, query).
+		Clauses(clause.OrderBy{
+			Expression: clause.Expr{SQL: sql, Vars: []interface{}{query, query}, WithoutParentheses: true},
+		}).
 		Find(&vouchers).
 		Error
 	return vouchers, err
