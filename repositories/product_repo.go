@@ -13,7 +13,7 @@ type ProductRepo interface {
 	FindAllWithPage(providerID uint, page int, perPage int) ([]entities.Product, error)
 	FindByID(productID uint) (entities.Product, error)
 	FindByIDs(productIDs []uint) ([]entities.Product, error)
-	FindByName(productName string, providerID uint) ([]entities.Product, error)
+	Search(query string, providerID uint) ([]entities.Product, error)
 	Count(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) ([]uint, error)
 	GetAll(providerID uint) ([]entities.Product, error)
@@ -65,14 +65,13 @@ func (repo *productRepo) FindByID(productID uint) (entities.Product, error) {
 	return product, err
 }
 
-func (repo *productRepo) FindByName(productName string, providerID uint) ([]entities.Product, error) {
+func (repo *productRepo) Search(query string, providerID uint) ([]entities.Product, error) {
 	products := []entities.Product{}
-	responses := repo.db.
-		Where(&entities.Product{
-			ProviderID:  providerID,
-			ProductName: productName}).
-		Find(&products)
-	return products, responses.Error
+	err := repo.db.
+		Where("provider_id = ? AND product_name LIKE ?", providerID, "%"+query+"%").
+		Find(&products).
+		Error
+	return products, err
 }
 
 func (repo *productRepo) Count(providerID uint) (int64, error) {

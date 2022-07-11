@@ -20,8 +20,8 @@ type VoucherService interface {
 		providerID uint,
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error)
-	FindByName(
-		voucherName string,
+	Search(
+		query string,
 		providerID uint) ([]viewmodel.VoucherResponse, error)
 	Delete(providerID uint, voucherID uint) error
 	Publish(providerID uint, publishDTO dto.PublishedDTO) error
@@ -95,16 +95,13 @@ func (s *voucherService) FindAllWithPage(
 	return pagingMetadata, vouchers, err
 }
 
-func (s *voucherService) FindByName(voucherName string, providerID uint) ([]viewmodel.VoucherResponse, error) {
-	reponses, err := s.voucherRepo.FindByName(voucherName, providerID)
+func (s *voucherService) Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error) {
+	vouchers, err := s.voucherRepo.Search(query, providerID)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return reponses, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
-		}
-		return reponses, err
+		return nil, err
 	}
 
-	return reponses, err
+	return vouchers, err
 }
 
 func (s *voucherService) Delete(providerID uint, voucherID uint) error {

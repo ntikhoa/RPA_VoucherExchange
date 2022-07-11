@@ -50,9 +50,9 @@ func ProductRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		})
 
 	g.GET("/search",
-		middlewares.GetProductNameFromURL(),
+		middlewares.GetSearchFromURL(),
 		func(ctx *gin.Context) {
-			productController.FindByName(ctx)
+			productController.Search(ctx)
 		})
 
 	g.GET("/getAll",

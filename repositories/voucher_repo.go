@@ -15,7 +15,7 @@ type VoucherRepo interface {
 	Count(providerID uint) (int64, error)
 	Publish(voucherID uint, published bool) error
 	FindVoucherExchange(providerID uint, productsName []string) ([]entities.Voucher, error)
-	FindByName(voucherName string, providerID uint) ([]viewmodel.VoucherResponse, error)
+	Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error)
 	// FindByDescription(voucherDescription string) ([]entities.Voucher, error)
 }
 
@@ -92,17 +92,21 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 	return vouchersRes, err
 }
 
-func (r *voucherRepo) FindByName(voucherName string, providerID uint) ([]viewmodel.VoucherResponse, error) {
-	var reponses []viewmodel.VoucherResponse
+func (r *voucherRepo) Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error) {
+	var vouchers []viewmodel.VoucherResponse
+	query = "%" + query + "%"
 	err := r.db.
 		Model(&entities.Voucher{}).
-		Where(&entities.Voucher{
-			Name:       voucherName,
-			ProviderID: providerID,
-		}).
-		Find(&reponses).
+		Where("provider_id = ? AND name LIKE ? OR description LIKE ?", providerID, query, query).
+		Raw(`ORDER BY
+				CASE
+				WHEN name LIKE ? THEN 1
+				WHEN  description LIKE ? THEN 3
+				ELSE 2
+				END`, query, query).
+		Find(&vouchers).
 		Error
-	return reponses, err
+	return vouchers, err
 }
 
 func (r *voucherRepo) Delete(voucherID uint) error {
