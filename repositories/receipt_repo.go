@@ -65,6 +65,7 @@ func (r *receiptRepo) FindByID(providerID uint, receiptID uint) (entities.Receip
 		Preload("Status").
 		Preload("ReceiptItems").
 		Preload("Voucher").
+		Preload("Voucher.Products").
 		Preload("Voucher.Gift").
 		Preload("ReceiptImages").
 		Preload("Customer").
