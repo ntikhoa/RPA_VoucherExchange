@@ -17,4 +17,5 @@ const (
 	ACCOUNT_ROLE_ID_KEY           = "account_role_id_key"
 	RECEIPT_IMAGE_FILES_KEY       = "receipt_image_files_key"
 	IS_APPROVED_KEY               = "is_approved_key"
+	SEARCH_QUERY_KEY              = "search_query_key"
 )

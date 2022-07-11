@@ -20,6 +20,9 @@ type VoucherService interface {
 		providerID uint,
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.VoucherResponse, error)
+	Search(
+		query string,
+		providerID uint) ([]viewmodel.VoucherResponse, error)
 	Delete(providerID uint, voucherID uint) error
 	Publish(providerID uint, publishDTO dto.PublishedDTO) error
 }
@@ -90,6 +93,15 @@ func (s *voucherService) FindAllWithPage(
 
 	vouchers, err := s.voucherRepo.FindAllWithPage(providerID, page, perPage)
 	return pagingMetadata, vouchers, err
+}
+
+func (s *voucherService) Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error) {
+	vouchers, err := s.voucherRepo.Search(query, providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return vouchers, err
 }
 
 func (s *voucherService) Delete(providerID uint, voucherID uint) error {

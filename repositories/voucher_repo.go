@@ -4,6 +4,7 @@ import (
 	"github.com/RPA_VoucherExchange/entities"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type VoucherRepo interface {
@@ -15,6 +16,8 @@ type VoucherRepo interface {
 	Count(providerID uint) (int64, error)
 	Publish(voucherID uint, published bool) error
 	FindVoucherExchange(providerID uint, productsName []string) ([]entities.Voucher, error)
+	Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error)
+	// FindByDescription(voucherDescription string) ([]entities.Voucher, error)
 }
 
 type voucherRepo struct {
@@ -88,6 +91,23 @@ func (r *voucherRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 		Find(&vouchersRes).
 		Error
 	return vouchersRes, err
+}
+
+func (r *voucherRepo) Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error) {
+	var vouchers []viewmodel.VoucherResponse
+	query = "%" + query + "%"
+
+	sql := `CASE WHEN name LIKE ? THEN 1 WHEN  description LIKE ? THEN 3 ELSE 2 END`
+
+	err := r.db.
+		Model(&entities.Voucher{}).
+		Where("provider_id = ? AND name LIKE ? OR description LIKE ?", providerID, query, query).
+		Clauses(clause.OrderBy{
+			Expression: clause.Expr{SQL: sql, Vars: []interface{}{query, query}, WithoutParentheses: true},
+		}).
+		Find(&vouchers).
+		Error
+	return vouchers, err
 }
 
 func (r *voucherRepo) Delete(voucherID uint) error {

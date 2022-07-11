@@ -15,6 +15,7 @@ type VoucherController interface {
 	Update(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	FindAll(ctx *gin.Context)
+	Search(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 	Publish(ctx *gin.Context)
 }
@@ -119,6 +120,27 @@ func (c *voucherController) FindAll(ctx *gin.Context) {
 		"status": http.StatusOK,
 		"data": gin.H{
 			"metadata": metadata,
+			"vouchers": vouchers,
+		},
+		"error":   nil,
+		"message": "Vouchers found successfully.",
+	})
+}
+
+func (c *voucherController) Search(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	query := ctx.MustGet(configs.SEARCH_QUERY_KEY).(string)
+
+	vouchers, err := c.voucherService.Search(query, providerID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
 			"vouchers": vouchers,
 		},
 		"error":   nil,

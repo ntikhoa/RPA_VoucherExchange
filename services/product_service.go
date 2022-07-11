@@ -23,6 +23,7 @@ type ProductService interface {
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []entities.Product, error)
 	FindByID(productID uint, providerID uint) (entities.Product, error)
+	Search(query string, providerID uint) ([]entities.Product, error)
 	GetCount(providerID uint) (int64, error)
 	CheckExistence(productIDs []uint) error
 	GetAll(providerID uint) ([]entities.Product, error)
@@ -101,6 +102,14 @@ func (s *productService) FindByID(productID uint, providerID uint) (entities.Pro
 	}
 
 	return product, nil
+}
+
+func (s *productService) Search(query string, providerID uint) ([]entities.Product, error) {
+	products, err := s.repo.Search(query, providerID)
+	if err != nil {
+		return products, err
+	}
+	return products, nil
 }
 
 func (s *productService) GetCount(providerID uint) (int64, error) {
