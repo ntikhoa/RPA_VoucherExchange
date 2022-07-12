@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/services"
@@ -14,6 +16,7 @@ type TransactionController interface {
 	FindAll(ctx *gin.Context)
 	FindByID(ctx *gin.Context)
 	Censor(ctx *gin.Context)
+	FindBetweenDates(ctx *gin.Context)
 }
 
 type transactionController struct {
@@ -85,5 +88,52 @@ func (c *transactionController) Censor(ctx *gin.Context) {
 		"data":    nil,
 		"error":   nil,
 		"message": "Transaction censored successfully.",
+	})
+}
+
+func (c *transactionController) FindBetweenDates(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	//ddmmyyyy
+	layout := "02012006"
+	fromDate_string := ctx.MustGet(configs.FROM_DATE).(string)
+	toDate_string := ctx.MustGet(configs.TO_DATE).(string)
+
+	fromDate, err := time.Parse(layout, fromDate_string)
+	if err != nil {
+		log.Print(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	toDate, err := time.Parse(layout, toDate_string)
+	if err != nil {
+		log.Print(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	// fromDate.Format("2006-01-02 15:04:05")
+	// toDate.Format("2006-01-02 15:04:05")
+
+	// log.Println("Transaction from:", fromDate)
+	// log.Println("Transaction till:", toDate)
+
+	if toDate.Before(fromDate) {
+		err = errors.New("To date < From date.")
+		log.Print(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	receipts, err := c.service.FindBetweenDates(providerID, fromDate, toDate)
+	if err != nil {
+		log.Print(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"receipts": receipts,
+		},
+		"error":   nil,
+		"message": "Query completed successfully.",
 	})
 }

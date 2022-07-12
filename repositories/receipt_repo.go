@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/RPA_VoucherExchange/entities"
 	"gorm.io/gorm"
 )
@@ -10,6 +12,7 @@ type ReceiptRepo interface {
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint) ([]entities.Receipt, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
+	FindBetweenDates(productID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error)
 	FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error)
 	UpdateCensorStatus(receiptID uint, statusID uint) error
 }
@@ -88,6 +91,17 @@ func (r *receiptRepo) FindByIDWithoutJoin(providerID uint, receiptID uint) (enti
 		Error
 
 	return receipt, err
+}
+
+func (r *receiptRepo) FindBetweenDates(productID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+	var receipts []entities.Receipt
+	err := r.db.
+		Model(&entities.Receipt{}).
+		Where("DATE(created_at) BETWEEN DATE(?) AND DATE(?)", fromDate, toDate).
+		Find(&receipts).
+		Error
+	return receipts, err
+
 }
 
 func (r *receiptRepo) UpdateCensorStatus(receiptID uint, statusID uint) error {
