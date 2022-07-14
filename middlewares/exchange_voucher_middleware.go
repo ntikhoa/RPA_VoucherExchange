@@ -10,6 +10,7 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func ValidateViewExchangeVoucher() gin.HandlerFunc {
@@ -21,7 +22,7 @@ func ValidateViewExchangeVoucher() gin.HandlerFunc {
 
 		if len(ctx.Request.PostForm) == 0 {
 			//JSON parsing
-			err := ctx.ShouldBind(&viewExchangeVoucherDTO)
+			err := ctx.ShouldBindBodyWith(&viewExchangeVoucherDTO, binding.JSON)
 			if err != nil {
 				ctx.AbortWithError(http.StatusBadRequest, err)
 				return
@@ -66,7 +67,7 @@ func ValidateTestExchangeVoucher() gin.HandlerFunc {
 
 		if len(ctx.Request.PostForm) == 0 {
 			//JSON parsing
-			err := ctx.ShouldBind(&payload)
+			err := ctx.ShouldBindBodyWith(&payload, binding.JSON)
 			if err != nil {
 				log.Println(err)
 				ctx.AbortWithError(http.StatusBadRequest, err)
