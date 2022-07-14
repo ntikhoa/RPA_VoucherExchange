@@ -1,8 +1,8 @@
 package dto
 
 type ViewExchangeVoucherDTO struct {
-	Products []string
-	Prices   []uint
+	Products []string `json:"products" binding:"required"`
+	Prices   []uint   `json:"prices" binding:"required"`
 }
 
 type ExchangeVoucherDTO struct {
