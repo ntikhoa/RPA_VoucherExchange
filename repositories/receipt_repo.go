@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/RPA_VoucherExchange/entities"
 	"gorm.io/gorm"
 )
@@ -10,6 +12,7 @@ type ReceiptRepo interface {
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint) ([]entities.Receipt, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
+	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error)
 	FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error)
 	UpdateCensorStatus(receiptID uint, statusID uint) error
 }
@@ -88,6 +91,26 @@ func (r *receiptRepo) FindByIDWithoutJoin(providerID uint, receiptID uint) (enti
 		Error
 
 	return receipt, err
+}
+
+func (r *receiptRepo) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+	var receipts []entities.Receipt
+	err := r.db.
+		Model(&entities.Receipt{}).
+		Preload("Voucher", func(tx *gorm.DB) *gorm.DB {
+			return tx.Where("provider_id = ?", providerID).Select("ID", "Name")
+		}).
+		Preload("Account", func(tx *gorm.DB) *gorm.DB {
+			return tx.Select("ID", "Name")
+		}).
+		Preload("Status").
+		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id").
+		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
+		Where("DATE(receipts.created_at) BETWEEN DATE(?) AND DATE(?)", fromDate, toDate).
+		Find(&receipts).
+		Error
+	return receipts, err
+
 }
 
 func (r *receiptRepo) UpdateCensorStatus(receiptID uint, statusID uint) error {
