@@ -29,7 +29,6 @@ func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		})
 
 	g.POST("",
-		middlewares.ValidateViewExchangeVoucher(),
 		middlewares.ValidateExchangeVoucher(),
 		func(ctx *gin.Context) {
 			controller.ExchangeVoucher(ctx)
