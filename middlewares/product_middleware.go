@@ -49,7 +49,7 @@ func ValidateDeleteProductsRequest() gin.HandlerFunc {
 			}
 		}
 
-		ctx.Set(configs.PRODUCT_IDS_DTO_KEY, productsID)
+		ctx.Set(configs.PAYLOAD_DTO_KEY, productsID)
 		ctx.Next()
 	}
 }

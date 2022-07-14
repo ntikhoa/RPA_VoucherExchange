@@ -14,6 +14,7 @@ import (
 type ExchangeVoucherService interface {
 	ViewExchangeVoucher(providerID uint, viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO) ([]entities.Voucher, error)
 	GetVoucherExchange(providerID uint, viewVoucherExchangeDTO dto.ViewExchangeVoucherDTO, voucherID uint) error
+	TestExchangeVoucher(providerID uint, testExchangeDTO dto.TestExchangeVoucherDTO) ([]uint, error)
 	checkVoucherRule(dto dto.ViewExchangeVoucherDTO,
 		vouchers []entities.Voucher,
 	) []entities.Voucher
@@ -63,6 +64,20 @@ func (s *exchangeVoucherService) GetVoucherExchange(providerID uint,
 		return custom_error.NewConflictError(constants.INVALID_VOUCHER_ERROR)
 	}
 	return nil
+}
+
+func (s *exchangeVoucherService) TestExchangeVoucher(providerID uint, testExchangeDTO dto.TestExchangeVoucherDTO) ([]uint, error) {
+	vouchers, err := s.voucherRepo.FindTestVoucherExchange(providerID, testExchangeDTO.VoucherIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	resVouchers := s.checkVoucherRule(testExchangeDTO.ViewExchangeVoucherDTO, vouchers)
+	var resVoucherIDs []uint
+	for _, resVoucher := range resVouchers {
+		resVoucherIDs = append(resVoucherIDs, resVoucher.ID)
+	}
+	return resVoucherIDs, nil
 }
 
 func (s *exchangeVoucherService) checkVoucherRule(

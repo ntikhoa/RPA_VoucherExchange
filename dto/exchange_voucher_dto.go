@@ -12,3 +12,8 @@ type ExchangeVoucherDTO struct {
 	CustomerName           string
 	CustomerPhone          string
 }
+
+type TestExchangeVoucherDTO struct {
+	ViewExchangeVoucherDTO
+	VoucherIDs []uint
+}

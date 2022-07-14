@@ -152,7 +152,7 @@ func (c *productController) GetAll(ctx *gin.Context) {
 }
 
 func (c *productController) DeleteProducts(ctx *gin.Context) {
-	productIDs := ctx.MustGet(configs.PRODUCT_IDS_DTO_KEY).([]uint)
+	productIDs := ctx.MustGet(configs.PAYLOAD_DTO_KEY).([]uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
 	log.Println(productIDs)
