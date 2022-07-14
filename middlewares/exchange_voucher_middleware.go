@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -9,53 +10,85 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
-
-func ValidateTestExchangeVoucher() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
-		ctx.Next()
-	}
-}
 
 func ValidateViewExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		viewExchangeVoucherDTO := dto.ViewExchangeVoucherDTO{}
 
-		switch ctx.Request.Header["Content-Type"][0] {
-		case "application/json":
-			{
-				err := ctx.ShouldBind(&viewExchangeVoucherDTO)
-				if err != nil {
-					ctx.AbortWithError(http.StatusBadRequest, err)
-					return
-				}
+		ctx.Request.ParseForm()
+
+		if len(ctx.Request.PostForm) == 0 {
+			//JSON parsing
+			err := ctx.ShouldBindBodyWith(&viewExchangeVoucherDTO, binding.JSON)
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
 			}
-		case "application/x-www-form-urlencoded":
-			{
-				ctx.Request.ParseForm()
+		} else {
+			//FormUrlEncoded parsing
+			products, ok := ctx.Request.PostForm["products"]
+			if !ok {
+				ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
+				return
+			}
 
-				products, ok := ctx.Request.PostForm["products"]
-				if !ok {
-					ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
-					return
-				}
+			prices, err := getUintArrayTypeFormURL(ctx, "prices")
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
 
-				prices, err := getUintArrayTypeFormURL(ctx, "prices")
-				if err != nil {
-					ctx.AbortWithError(http.StatusBadRequest, err)
-					return
-				}
-
-				viewExchangeVoucherDTO = dto.ViewExchangeVoucherDTO{
-					Products: products,
-					Prices:   prices,
-				}
+			viewExchangeVoucherDTO = dto.ViewExchangeVoucherDTO{
+				Products: products,
+				Prices:   prices,
 			}
 		}
 
+		if len(viewExchangeVoucherDTO.Products) != len(viewExchangeVoucherDTO.Prices) {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("the number of products and prices do not match"))
+		}
+
 		ctx.Set(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY, viewExchangeVoucherDTO)
+		ctx.Next()
+	}
+}
+
+func ValidateTestExchangeVoucher() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		viewExchangeVoucherDTO := ctx.MustGet(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY).(dto.ViewExchangeVoucherDTO)
+
+		ctx.Request.ParseForm()
+
+		var payload dto.PayLoad
+
+		if len(ctx.Request.PostForm) == 0 {
+			//JSON parsing
+			err := ctx.ShouldBindBodyWith(&payload, binding.JSON)
+			if err != nil {
+				log.Println(err)
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			//FormUrlEncoded parsing
+			ids, err := getUintArrayTypeFormURL(ctx, "ids")
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+			payload.IDs = ids
+		}
+
+		testVoucherDTO := dto.TestExchangeVoucherDTO{
+			ViewExchangeVoucherDTO: viewExchangeVoucherDTO,
+			VoucherIDs:             payload.IDs,
+		}
+
+		ctx.Set(configs.TEST_EXCHANGE_VOUCHER_DTO_KEY, testVoucherDTO)
 		ctx.Next()
 	}
 }
@@ -79,6 +112,10 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
+		}
+
+		if len(products) != len(prices) {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("the number of products and prices do not match"))
 		}
 
 		files := ctx.Request.MultipartForm.File["files"]
