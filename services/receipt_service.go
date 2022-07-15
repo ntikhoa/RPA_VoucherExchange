@@ -91,6 +91,11 @@ func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool
 }
 
 func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+
+	if toDate.Before(fromDate) {
+		return nil, custom_error.NewBadRequestError("invalid date range")
+	}
+
 	receipts, err := s.repo.FindBetweenDates(providerID, fromDate, toDate)
 	if err != nil {
 		return nil, err

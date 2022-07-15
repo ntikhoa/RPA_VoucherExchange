@@ -37,7 +37,7 @@ func (r *receiptRepo) FindAllWithPage(providerID uint) ([]entities.Receipt, erro
 	err := r.db.
 		Model(&receipts).
 		Preload("Voucher", func(tx *gorm.DB) *gorm.DB {
-			return tx.Where("provider_id = ?", providerID).Select("ID", "Name")
+			return tx.Select("ID", "Name")
 		}).
 		Preload("Account", func(tx *gorm.DB) *gorm.DB {
 			return tx.Select("ID", "Name")
@@ -98,7 +98,7 @@ func (r *receiptRepo) FindBetweenDates(providerID uint, fromDate time.Time, toDa
 	err := r.db.
 		Model(&entities.Receipt{}).
 		Preload("Voucher", func(tx *gorm.DB) *gorm.DB {
-			return tx.Where("provider_id = ?", providerID).Select("ID", "Name")
+			return tx.Select("ID", "Name")
 		}).
 		Preload("Account", func(tx *gorm.DB) *gorm.DB {
 			return tx.Select("ID", "Name")

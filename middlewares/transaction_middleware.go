@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/RPA_VoucherExchange/configs"
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,24 +35,18 @@ func ValidateSearchByDateQuery() gin.HandlerFunc {
 		fromDate_string := values["from_date"]
 		toDate_string := values["to_date"]
 		if len(fromDate_string) != 1 || len(toDate_string) != 1 {
-			ctx.AbortWithError(http.StatusBadRequest, errors.New("Invalid dates."))
+			ctx.AbortWithError(http.StatusBadRequest, errors.New(`'from_date' and 'to_date' required`))
 			return
 		}
 
-		layout := "02-01-2006" //dd-mm-yyyy
-		fromDate, err := time.Parse(layout, fromDate_string[0])
+		fromDate, err := time.Parse(constants.SEARCH_DATE_FORMAT, fromDate_string[0])
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		toDate, err := time.Parse(layout, toDate_string[0])
+		toDate, err := time.Parse(constants.SEARCH_DATE_FORMAT, toDate_string[0])
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-
-		if toDate.Before(fromDate) {
-			ctx.AbortWithError(http.StatusBadRequest, errors.New("invalid date range"))
 			return
 		}
 
