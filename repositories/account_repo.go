@@ -86,6 +86,9 @@ func (repo *accountRepo) FindAllWithPage(providerID uint,
 
 func (repo *accountRepo) FindByUserOrName(query string, providerID uint) ([]entities.Account, error) {
 	var accounts []entities.Account
+
+	query = "%" + query + "%"
+
 	err := repo.db.
 		Model(&entities.Account{ProviderID: providerID}).
 		Preload("Role").
