@@ -17,7 +17,7 @@ type VoucherRepo interface {
 	Publish(voucherID uint, published bool) error
 	FindVoucherExchange(providerID uint, productsName []string) ([]entities.Voucher, error)
 	Search(query string, providerID uint) ([]viewmodel.VoucherResponse, error)
-	// FindByDescription(voucherDescription string) ([]entities.Voucher, error)
+	FindTestVoucherExchange(providerID uint, voucherIDs []uint) ([]entities.Voucher, error)
 }
 
 type voucherRepo struct {
@@ -142,6 +142,18 @@ func (r *voucherRepo) FindVoucherExchange(providerID uint, productsName []string
 		Joins("JOIN voucher_products ON voucher_products.voucher_id = vouchers.id AND vouchers.published = ? AND vouchers.provider_id = ?", true, providerID).
 		Joins("JOIN products ON voucher_products.product_id = products.id AND products.product_name IN (?)", productsName).
 		Distinct().
+		Find(&vouchers).
+		Error
+	return vouchers, err
+}
+
+func (r *voucherRepo) FindTestVoucherExchange(providerID uint, voucherIDs []uint) ([]entities.Voucher, error) {
+	var vouchers []entities.Voucher
+
+	err := r.db.
+		Model(&vouchers).
+		Preload("Products").
+		Where("provider_id = ? AND id IN (?)", providerID, voucherIDs).
 		Find(&vouchers).
 		Error
 	return vouchers, err

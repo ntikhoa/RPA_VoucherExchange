@@ -2,38 +2,92 @@ package middlewares
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func ValidateViewExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
 
-		products, ok := ctx.Request.MultipartForm.Value["products"]
-		if !ok {
-			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
-			return
+		viewExchangeVoucherDTO := dto.ViewExchangeVoucherDTO{}
+
+		ctx.Request.ParseForm()
+
+		if len(ctx.Request.PostForm) == 0 {
+			//JSON parsing
+			err := ctx.ShouldBindBodyWith(&viewExchangeVoucherDTO, binding.JSON)
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			//FormUrlEncoded parsing
+			products, ok := ctx.Request.PostForm["products"]
+			if !ok {
+				ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
+				return
+			}
+
+			prices, err := getUintArrayType(ctx.Request.PostForm, "prices")
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+
+			viewExchangeVoucherDTO = dto.ViewExchangeVoucherDTO{
+				Products: products,
+				Prices:   prices,
+			}
 		}
 
-		prices, err := getUintArrayType(ctx, "prices")
-		if err != nil {
-			ctx.AbortWithError(http.StatusBadRequest, err)
-			return
+		if len(viewExchangeVoucherDTO.Products) != len(viewExchangeVoucherDTO.Prices) {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("the number of products and prices do not match"))
 		}
 
-		viewVoucherExchangeDTO := dto.ViewExchangeVoucherDTO{
-			Products: products,
-			Prices:   prices,
+		ctx.Set(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY, viewExchangeVoucherDTO)
+		ctx.Next()
+	}
+}
+
+func ValidateTestExchangeVoucher() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+
+		viewExchangeVoucherDTO := ctx.MustGet(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY).(dto.ViewExchangeVoucherDTO)
+
+		ctx.Request.ParseForm()
+
+		var payload dto.PayLoad
+
+		if len(ctx.Request.PostForm) == 0 {
+			//JSON parsing
+			err := ctx.ShouldBindBodyWith(&payload, binding.JSON)
+			if err != nil {
+				log.Println(err)
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+		} else {
+			//FormUrlEncoded parsing
+			ids, err := getUintArrayType(ctx.Request.PostForm, "ids")
+			if err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+			payload.IDs = ids
 		}
 
-		ctx.Set(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY, viewVoucherExchangeDTO)
+		testVoucherDTO := dto.TestExchangeVoucherDTO{
+			ViewExchangeVoucherDTO: viewExchangeVoucherDTO,
+			VoucherIDs:             payload.IDs,
+		}
 
+		ctx.Set(configs.TEST_EXCHANGE_VOUCHER_DTO_KEY, testVoucherDTO)
 		ctx.Next()
 	}
 }
@@ -41,6 +95,27 @@ func ValidateViewExchangeVoucher() gin.HandlerFunc {
 func ValidateExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
+
+		if ctx.Request.MultipartForm == nil {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("cannot parse form data"))
+			return
+		}
+
+		products, ok := ctx.Request.MultipartForm.Value["products"]
+		if !ok {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("\"products\" required"))
+			return
+		}
+
+		prices, err := getUintArrayType(ctx.Request.MultipartForm.Value, "prices")
+		if err != nil {
+			ctx.AbortWithError(http.StatusBadRequest, err)
+			return
+		}
+
+		if len(products) != len(prices) {
+			ctx.AbortWithError(http.StatusBadRequest, errors.New("the number of products and prices do not match"))
+		}
 
 		files := ctx.Request.MultipartForm.File["files"]
 		if len(files) == 0 {
@@ -55,7 +130,7 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			}
 		}
 
-		voucherID, err := getUintArrayType(ctx, "voucher_id")
+		voucherID, err := getUintArrayType(ctx.Request.MultipartForm.Value, "voucher_id")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -79,37 +154,21 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
-		viewVoucherExchangeDTO := ctx.MustGet(configs.VIEW_EXCHANGE_VOUCHER_DTO_KEY).(dto.ViewExchangeVoucherDTO)
-
 		exchangeVoucherDTO := dto.ExchangeVoucherDTO{
-			ViewExchangeVoucherDTO: viewVoucherExchangeDTO,
-			TransactionID:          transactionID[0],
-			VoucherID:              voucherID[0],
-			CustomerName:           customerName[0],
-			CustomerPhone:          customerPhone[0],
+			ViewExchangeVoucherDTO: dto.ViewExchangeVoucherDTO{
+				Products: products,
+				Prices:   prices,
+			},
+			TransactionID: transactionID[0],
+			VoucherID:     voucherID[0],
+			CustomerName:  customerName[0],
+			CustomerPhone: customerPhone[0],
 		}
 
 		ctx.Set(configs.RECEIPT_IMAGE_FILES_KEY, files)
 		ctx.Set(configs.EXCHANGE_VOUCHER_DTO, exchangeVoucherDTO)
 		ctx.Next()
 	}
-}
-
-func getUintArrayType(ctx *gin.Context, key string) ([]uint, error) {
-	pricesStr, ok := ctx.Request.MultipartForm.Value[key]
-	if !ok {
-		return nil, errors.New("\"" + key + "\"" + " required")
-	}
-	var prices []uint
-	for _, priceStr := range pricesStr {
-		price, err := strconv.ParseUint(priceStr, 10, 64)
-		if err != nil {
-			return prices, errors.New("\"" + key + "\" " + " invalid type")
-		}
-		prices = append(prices, uint(price))
-	}
-
-	return prices, nil
 }
 
 func isImageType(mimeType string) bool {
