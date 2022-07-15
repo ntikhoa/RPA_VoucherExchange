@@ -13,6 +13,7 @@ type AccountRepo interface {
 	FindAccount(accountID uint, providerID uint) (entities.Account, error)
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.AccountResponse, error)
+	FindByUserOrName(query string, providerID uint) ([]entities.Account, error)
 }
 
 type accountRepo struct {
@@ -81,4 +82,16 @@ func (repo *accountRepo) FindAllWithPage(providerID uint,
 		Error
 
 	return accountsRes, err
+}
+
+func (repo *accountRepo) FindByUserOrName(query string, providerID uint) ([]entities.Account, error) {
+	var accounts []entities.Account
+	err := repo.db.
+		Model(&entities.Account{ProviderID: providerID}).
+		Preload("Role").
+		Where("username LIKE ? OR name LIKE ?", query, query).
+		Distinct().
+		Find(&accounts).
+		Error
+	return accounts, err
 }
