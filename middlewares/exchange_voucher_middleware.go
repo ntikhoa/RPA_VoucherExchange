@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
@@ -35,7 +34,7 @@ func ValidateViewExchangeVoucher() gin.HandlerFunc {
 				return
 			}
 
-			prices, err := getUintArrayTypeFormURL(ctx, "prices")
+			prices, err := getUintArrayType(ctx.Request.PostForm, "prices")
 			if err != nil {
 				ctx.AbortWithError(http.StatusBadRequest, err)
 				return
@@ -75,7 +74,7 @@ func ValidateTestExchangeVoucher() gin.HandlerFunc {
 			}
 		} else {
 			//FormUrlEncoded parsing
-			ids, err := getUintArrayTypeFormURL(ctx, "ids")
+			ids, err := getUintArrayType(ctx.Request.PostForm, "ids")
 			if err != nil {
 				ctx.AbortWithError(http.StatusBadRequest, err)
 				return
@@ -108,7 +107,7 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
-		prices, err := getUintArrayType(ctx, "prices")
+		prices, err := getUintArrayType(ctx.Request.MultipartForm.Value, "prices")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -131,7 +130,7 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			}
 		}
 
-		voucherID, err := getUintArrayType(ctx, "voucher_id")
+		voucherID, err := getUintArrayType(ctx.Request.MultipartForm.Value, "voucher_id")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -170,40 +169,6 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 		ctx.Set(configs.EXCHANGE_VOUCHER_DTO, exchangeVoucherDTO)
 		ctx.Next()
 	}
-}
-
-func getUintArrayTypeFormURL(ctx *gin.Context, key string) ([]uint, error) {
-	pricesStr, ok := ctx.Request.PostForm[key]
-	if !ok {
-		return nil, errors.New("\"" + key + "\"" + " required")
-	}
-	var prices []uint
-	for _, priceStr := range pricesStr {
-		price, err := strconv.ParseUint(priceStr, 10, 64)
-		if err != nil {
-			return prices, errors.New("\"" + key + "\" " + " invalid type")
-		}
-		prices = append(prices, uint(price))
-	}
-
-	return prices, nil
-}
-
-func getUintArrayType(ctx *gin.Context, key string) ([]uint, error) {
-	pricesStr, ok := ctx.Request.MultipartForm.Value[key]
-	if !ok {
-		return nil, errors.New("\"" + key + "\"" + " required")
-	}
-	var prices []uint
-	for _, priceStr := range pricesStr {
-		price, err := strconv.ParseUint(priceStr, 10, 64)
-		if err != nil {
-			return prices, errors.New("\"" + key + "\" " + " invalid type")
-		}
-		prices = append(prices, uint(price))
-	}
-
-	return prices, nil
 }
 
 func isImageType(mimeType string) bool {
