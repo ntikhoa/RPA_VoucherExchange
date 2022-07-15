@@ -1,9 +1,6 @@
 package services
 
 import (
-	"log"
-
-	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 )
@@ -12,7 +9,7 @@ type AccountService interface {
 	FindAllWithPage(providerID uint,
 		page int,
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.AccountResponse, error)
-	FindByUserOrName(query string, providerID uint) ([]entities.Account, error)
+	Search(query string, providerID uint) ([]viewmodel.AccountResponse, error)
 }
 
 type accountService struct {
@@ -39,10 +36,9 @@ func (s *accountService) FindAllWithPage(providerID uint,
 	return pagingMetadata, accounts, err
 }
 
-func (s *accountService) FindByUserOrName(query string, providerID uint) ([]entities.Account, error) {
-	accounts, err := s.repo.FindByUserOrName(query, providerID)
+func (s *accountService) Search(query string, providerID uint) ([]viewmodel.AccountResponse, error) {
+	accounts, err := s.repo.Search(query, providerID)
 	if err != nil {
-		log.Print(err)
 		return accounts, err
 	}
 	return accounts, err

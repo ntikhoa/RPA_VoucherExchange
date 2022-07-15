@@ -13,7 +13,7 @@ type AccountRepo interface {
 	FindAccount(accountID uint, providerID uint) (entities.Account, error)
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.AccountResponse, error)
-	FindByUserOrName(query string, providerID uint) ([]entities.Account, error)
+	Search(query string, providerID uint) ([]viewmodel.AccountResponse, error)
 }
 
 type accountRepo struct {
@@ -74,8 +74,9 @@ func (repo *accountRepo) FindAllWithPage(providerID uint,
 
 	var accountsRes []viewmodel.AccountResponse
 	err := repo.db.
-		Model(&entities.Account{ProviderID: providerID}).
+		Model(&entities.Account{}).
 		Preload("Role").
+		Where(&entities.Account{ProviderID: providerID}).
 		Limit(perPage).
 		Offset((page - 1) * perPage).
 		Find(&accountsRes).
@@ -84,16 +85,17 @@ func (repo *accountRepo) FindAllWithPage(providerID uint,
 	return accountsRes, err
 }
 
-func (repo *accountRepo) FindByUserOrName(query string, providerID uint) ([]entities.Account, error) {
-	var accounts []entities.Account
+func (repo *accountRepo) Search(query string, providerID uint) ([]viewmodel.AccountResponse, error) {
+	var accountsRes []viewmodel.AccountResponse
 
 	query = "%" + query + "%"
 	err := repo.db.
-		Model(&entities.Account{ProviderID: providerID}).
+		Model(&entities.Account{}).
 		Preload("Role").
+		Where(&entities.Account{ProviderID: providerID}).
 		Where("username LIKE ? OR name LIKE ?", query, query).
 		Distinct().
-		Find(&accounts).
+		Find(&accountsRes).
 		Error
-	return accounts, err
+	return accountsRes, err
 }

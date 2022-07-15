@@ -11,7 +11,7 @@ import (
 
 type AccountController interface {
 	GetAccount(ctx *gin.Context)
-	FindByUserOrName(ctx *gin.Context)
+	Search(ctx *gin.Context)
 }
 
 type accountController struct {
@@ -47,10 +47,10 @@ func (c *accountController) GetAccount(ctx *gin.Context) {
 	})
 }
 
-func (c *accountController) FindByUserOrName(ctx *gin.Context) {
+func (c *accountController) Search(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	query := ctx.MustGet(configs.SEARCH_QUERY_KEY).(string)
-	accounts, err := c.service.FindByUserOrName(query, providerID)
+	accounts, err := c.service.Search(query, providerID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
