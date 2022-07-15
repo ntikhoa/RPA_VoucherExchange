@@ -104,9 +104,8 @@ func (r *receiptRepo) FindBetweenDates(providerID uint, fromDate time.Time, toDa
 			return tx.Select("ID", "Name")
 		}).
 		Preload("Status").
-		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id").
+		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id AND DATE(receipts.created_at) BETWEEN DATE(?) AND DATE(?)", fromDate, toDate).
 		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
-		Where("DATE(receipts.created_at) BETWEEN DATE(?) AND DATE(?)", fromDate, toDate).
 		Find(&receipts).
 		Error
 	return receipts, err

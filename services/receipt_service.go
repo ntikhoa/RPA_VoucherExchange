@@ -93,10 +93,7 @@ func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool
 func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
 	receipts, err := s.repo.FindBetweenDates(providerID, fromDate, toDate)
 	if err != nil {
-		if errors.Is(gorm.ErrRecordNotFound, err) {
-			return receipts, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
-		}
-		return receipts, err
+		return nil, err
 	}
 	return receipts, nil
 }

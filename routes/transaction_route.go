@@ -30,7 +30,7 @@ func TransactionRoutes(g *gin.RouterGroup, db *gorm.DB) {
 			controller.FindByID(ctx)
 		})
 	g.GET("search",
-		middlewares.GetDatesFromURL(),
+		middlewares.ValidateSearchByDateQuery(),
 		func(ctx *gin.Context) {
 			controller.FindBetweenDates(ctx)
 		})

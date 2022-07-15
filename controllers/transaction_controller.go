@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -94,40 +93,16 @@ func (c *transactionController) Censor(ctx *gin.Context) {
 func (c *transactionController) FindBetweenDates(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	layout := "02012006" //ddmmyyyy
-	fromDate_string := ctx.MustGet(configs.FROM_DATE).(string)
-	toDate_string := ctx.MustGet(configs.TO_DATE).(string)
+	fromDate := ctx.MustGet(configs.FROM_DATE).(time.Time)
+	toDate := ctx.MustGet(configs.TO_DATE).(time.Time)
 
-	fromDate, err := time.Parse(layout, fromDate_string)
-	if err != nil {
-		log.Print(err)
-		abortCustomError(ctx, err)
-		return
-	}
-	toDate, err := time.Parse(layout, toDate_string)
-	if err != nil {
-		log.Print(err)
-		abortCustomError(ctx, err)
-		return
-	}
-	// fromDate.Format("2006-01-02 15:04:05")
-	// toDate.Format("2006-01-02 15:04:05")
-
-	// log.Println("Transaction from:", fromDate)
-	// log.Println("Transaction till:", toDate)
-
-	if toDate.Before(fromDate) {
-		err = errors.New("invalid date range")
-		log.Print(err)
-		abortCustomError(ctx, err)
-		return
-	}
 	receipts, err := c.service.FindBetweenDates(providerID, fromDate, toDate)
 	if err != nil {
 		log.Print(err)
 		abortCustomError(ctx, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
 		"data": gin.H{
