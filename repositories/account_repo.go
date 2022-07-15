@@ -88,7 +88,6 @@ func (repo *accountRepo) FindByUserOrName(query string, providerID uint) ([]enti
 	var accounts []entities.Account
 
 	query = "%" + query + "%"
-
 	err := repo.db.
 		Model(&entities.Account{ProviderID: providerID}).
 		Preload("Role").
