@@ -2,7 +2,8 @@ package configs
 
 const (
 	PRODUCT_DTO_KEY               = "product_dto_key"
-	PRODUCT_IDS_DTO_KEY           = "product_ids_dto_key"
+	PAYLOAD_DTO_KEY               = "payload_dto_key"
+	TEST_EXCHANGE_VOUCHER_DTO_KEY = "test_exchange_voucher_dto_key"
 	VIEW_EXCHANGE_VOUCHER_DTO_KEY = "view_exchange_voucher_dto_key"
 	EXCHANGE_VOUCHER_DTO          = "exchange_voucher_dto_key"
 	VOUCHER_DTO_KEY               = "voucher_dto_key"
