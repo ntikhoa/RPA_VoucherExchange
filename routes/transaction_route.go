@@ -29,6 +29,11 @@ func TransactionRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.FindByID(ctx)
 		})
+	g.GET("search",
+		middlewares.ValidateSearchByDateQuery(),
+		func(ctx *gin.Context) {
+			controller.FindBetweenDates(ctx)
+		})
 	g.PUT("/:id",
 		middlewares.GetIDFromURL(),
 		middlewares.ValidateCensorRequest(),

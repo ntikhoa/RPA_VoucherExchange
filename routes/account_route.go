@@ -24,4 +24,9 @@ func AccountRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		func(ctx *gin.Context) {
 			controller.GetAccount(ctx)
 		})
+	g.GET("/search",
+		middlewares.GetSearchFromURL(),
+		func(ctx *gin.Context) {
+			controller.FindByUserOrName(ctx)
+		})
 }

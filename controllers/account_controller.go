@@ -11,6 +11,7 @@ import (
 
 type AccountController interface {
 	GetAccount(ctx *gin.Context)
+	FindByUserOrName(ctx *gin.Context)
 }
 
 type accountController struct {
@@ -43,5 +44,24 @@ func (c *accountController) GetAccount(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Vouchers found successfully.",
+	})
+}
+
+func (c *accountController) FindByUserOrName(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	query := ctx.MustGet(configs.SEARCH_QUERY_KEY).(string)
+	accounts, err := c.service.FindByUserOrName(query, providerID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"accounts": accounts,
+		},
+		"error":   nil,
+		"message": "Query completed successfully.",
 	})
 }

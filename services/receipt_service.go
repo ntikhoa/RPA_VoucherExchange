@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
@@ -19,6 +20,7 @@ type ReceiptService interface {
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
 	Censor(providerID uint, receiptID uint, isApproved bool) error
+	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error)
 }
 
 type receiptService struct {
@@ -86,4 +88,12 @@ func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool
 	}
 
 	return s.repo.UpdateCensorStatus(receiptID, statusID)
+}
+
+func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+	receipts, err := s.repo.FindBetweenDates(providerID, fromDate, toDate)
+	if err != nil {
+		return nil, err
+	}
+	return receipts, nil
 }
