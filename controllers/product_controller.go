@@ -155,8 +155,6 @@ func (c *productController) DeleteProducts(ctx *gin.Context) {
 	productIDs := ctx.MustGet(configs.PAYLOAD_DTO_KEY).([]uint)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	log.Println(productIDs)
-
 	if err := c.productService.DeleteByIDs(productIDs, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
