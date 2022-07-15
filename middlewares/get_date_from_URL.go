@@ -20,6 +20,7 @@ func GetDatesFromURL() gin.HandlerFunc {
 			ctx.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+
 		ctx.Set(configs.FROM_DATE, fromDate_strings[0])
 		ctx.Set(configs.TO_DATE, toDate_strings[0])
 		ctx.Next()

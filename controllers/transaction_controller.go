@@ -93,8 +93,8 @@ func (c *transactionController) Censor(ctx *gin.Context) {
 
 func (c *transactionController) FindBetweenDates(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	//ddmmyyyy
-	layout := "02012006"
+
+	layout := "02012006" //ddmmyyyy
 	fromDate_string := ctx.MustGet(configs.FROM_DATE).(string)
 	toDate_string := ctx.MustGet(configs.TO_DATE).(string)
 
@@ -117,7 +117,7 @@ func (c *transactionController) FindBetweenDates(ctx *gin.Context) {
 	// log.Println("Transaction till:", toDate)
 
 	if toDate.Before(fromDate) {
-		err = errors.New("To date < From date.")
+		err = errors.New("invalid date range")
 		log.Print(err)
 		abortCustomError(ctx, err)
 		return
