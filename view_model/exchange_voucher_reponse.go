@@ -9,7 +9,7 @@ type ExchangeVoucherResponse struct {
 	gorm.Model
 	Name        string
 	Description string
-	Gift        entities.Gift
+	GiftName    string
 }
 
 func NewExchangeVoucherResponse(entity entities.Voucher) ExchangeVoucherResponse {
@@ -17,7 +17,7 @@ func NewExchangeVoucherResponse(entity entities.Voucher) ExchangeVoucherResponse
 		Model:       entity.Model,
 		Name:        entity.Name,
 		Description: entity.Description,
-		Gift:        entity.Gift,
+		GiftName:    entity.Gift.GiftName,
 	}
 }
 
