@@ -8,6 +8,7 @@ import (
 	"github.com/RPA_VoucherExchange/configs"
 	"github.com/RPA_VoucherExchange/dto"
 	"github.com/RPA_VoucherExchange/services"
+	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,10 +43,13 @@ func (c *exchangeVoucherController) ViewExchangeVoucher(ctx *gin.Context) {
 		abortCustomError(ctx, err)
 		return
 	}
+
+	res := viewmodel.NewExchangeVoucherListResponse(vouchers)
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": http.StatusOK,
 		"data": gin.H{
-			"vouchers": vouchers,
+			"vouchers": res,
 		},
 		"error":   nil,
 		"message": "Vouchers found successfully.",
