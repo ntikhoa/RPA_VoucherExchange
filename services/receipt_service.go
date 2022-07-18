@@ -20,7 +20,7 @@ type ReceiptService interface {
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
 	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
 	Censor(providerID uint, receiptID uint, isApproved bool) error
-	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error)
+	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]viewmodel.ReceiptListRes, error)
 }
 
 type receiptService struct {
@@ -90,7 +90,7 @@ func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool
 	return s.repo.UpdateCensorStatus(receiptID, statusID)
 }
 
-func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]viewmodel.ReceiptListRes, error) {
 
 	if toDate.Before(fromDate) {
 		return nil, custom_error.NewBadRequestError("invalid date range")
@@ -100,5 +100,8 @@ func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, t
 	if err != nil {
 		return nil, err
 	}
-	return receipts, nil
+
+	res := viewmodel.NewSliceReceiptListRes(receipts)
+
+	return res, nil
 }
