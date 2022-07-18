@@ -10,14 +10,13 @@ import (
 )
 
 func initVoucherController(db *gorm.DB) controllers.VoucherController {
-	// db.Unscoped().Model(&entities.Voucher{}).Where("id = ?", 2).Update("deleted_at", nil)
-	// db.Unscoped().Model(&entities.Gift{}).Where("voucher_id = ?", 2).Update("deleted_at", nil)
-
 	productRepo := repositories.NewProductRepo(db)
 	productService := services.NewProductService(productRepo)
 	voucherRepo := repositories.NewVoucherRepo(db)
 	voucherService := services.NewVoucherService(voucherRepo)
-	return controllers.NewVoucherController(voucherService, productService)
+	giftRepo := repositories.NewGiftRepo(db)
+	giftService := services.NewGiftService(giftRepo)
+	return controllers.NewVoucherController(voucherService, productService, giftService)
 }
 
 func VoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
