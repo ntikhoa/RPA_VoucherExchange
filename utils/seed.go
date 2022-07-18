@@ -44,6 +44,24 @@ func SeedProducts(db *gorm.DB, variant int) {
 	db.CreateInBatches(&products, len(products))
 }
 
+func SeedGift(db *gorm.DB, variant int) {
+	providerID := []uint{1, 4}
+	giftName := []string{
+		"Bánh Mì Sandwich",
+		"Một bộ dao + nĩa trị giá 100,000vnđ",
+		"Một bộ ống hút thủy tinh",
+		"Một máy hút bụi cầm tay",
+		"Một khăn ướt chăm sóc da Fressi Care Cool",
+	}
+
+	gifts := []entities.Gift{}
+
+	for i := 0; i < len(giftName); i++ {
+		gifts = append(gifts, entities.Gift{GiftName: giftName[i], ProviderID: providerID[variant]})
+	}
+	db.CreateInBatches(&gifts, len(gifts))
+}
+
 func SeedVouchers(db *gorm.DB, variant int) {
 	providerID := []uint{1, 4}
 
@@ -64,6 +82,12 @@ func SeedVouchers(db *gorm.DB, variant int) {
 		"BVS DIANA HANG NGAY": {107, 844},
 	}
 
+	giftJunkFood2nd := []uint{53, 264}
+	giftJunkFood1st := []uint{54, 274}
+	SoftDrink := []uint{55, 284}
+	Tampon2nd := []uint{56, 294}
+	Tampon1st := []uint{57, 304}
+
 	vouchers := []entities.Voucher{
 		{
 			Name: "Junk Food 2nd",
@@ -73,12 +97,10 @@ func SeedVouchers(db *gorm.DB, variant int) {
 			`,
 			TotalPriceMin: 100000,
 			TotalPriceMax: 200000,
-			Total:         100,
-			Remaining:     100,
 			Published:     true,
 			ProviderID:    providerID[variant],
 			Products:      createProductsForVoucher(productsJunkFood, variant),
-			Gift:          entities.Gift{GiftName: "Bánh Mì Sandwich", ProviderID: providerID[variant]},
+			GiftID:        giftJunkFood2nd[variant],
 		},
 		{
 			Name: "Junk Food 1st",
@@ -88,12 +110,10 @@ func SeedVouchers(db *gorm.DB, variant int) {
 			`,
 			TotalPriceMin: 200000,
 			TotalPriceMax: 0,
-			Total:         50,
-			Remaining:     50,
 			Published:     true,
 			ProviderID:    providerID[variant],
 			Products:      createProductsForVoucher(productsJunkFood, variant),
-			Gift:          entities.Gift{GiftName: "Một bộ dao + nĩa trị giá 100,000vnđ", ProviderID: providerID[variant]},
+			GiftID:        giftJunkFood1st[variant],
 		},
 		{
 			Name: "Soft Drink",
@@ -103,12 +123,10 @@ func SeedVouchers(db *gorm.DB, variant int) {
 			`,
 			TotalPriceMin: 20000,
 			TotalPriceMax: 0,
-			Total:         100,
-			Remaining:     100,
 			Published:     true,
 			ProviderID:    providerID[variant],
 			Products:      createProductsForVoucher(productsSoftDrink, variant),
-			Gift:          entities.Gift{GiftName: "Một bộ ống hút thủy tinh", ProviderID: providerID[variant]},
+			GiftID:        SoftDrink[variant],
 		},
 		{
 			Name: "Tampon 2nd",
@@ -118,12 +136,10 @@ func SeedVouchers(db *gorm.DB, variant int) {
 			`,
 			TotalPriceMin: 49000,
 			TotalPriceMax: 79000,
-			Total:         100,
-			Remaining:     100,
 			Published:     true,
 			ProviderID:    providerID[variant],
 			Products:      createProductsForVoucher(productTampon, variant),
-			Gift:          entities.Gift{GiftName: "Một khăn ướt chăm sóc da Fressi Care Cool", ProviderID: providerID[variant]},
+			GiftID:        Tampon2nd[variant],
 		},
 		{
 			Name: "Tampon 1st",
@@ -133,19 +149,16 @@ func SeedVouchers(db *gorm.DB, variant int) {
 			`,
 			TotalPriceMin: 79000,
 			TotalPriceMax: 0,
-			Total:         50,
-			Remaining:     50,
 			Published:     true,
 			ProviderID:    providerID[variant],
 			Products:      createProductsForVoucher(productTampon, variant),
-			Gift:          entities.Gift{GiftName: "Một máy hút bụi cầm tay", ProviderID: providerID[variant]},
+			GiftID:        Tampon1st[variant],
 		},
 	}
 
 	for _, voucher := range vouchers {
 		db.Create(&voucher)
 	}
-	// db.CreateInBatches(&vouchers, len(vouchers))
 }
 
 func createProductsForVoucher(productsName map[string][]uint, variant int) []entities.Product {

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -23,27 +24,36 @@ type VoucherController interface {
 type voucherController struct {
 	voucherService services.VoucherService
 	productService services.ProductService
+	giftService    services.GiftService
 }
 
 func NewVoucherController(voucherService services.VoucherService,
-	productService services.ProductService) VoucherController {
+	productService services.ProductService,
+	giftService services.GiftService) VoucherController {
 	return &voucherController{
 		voucherService: voucherService,
 		productService: productService,
+		giftService:    giftService,
 	}
 }
 
 func (c *voucherController) Create(ctx *gin.Context) {
 	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
 	productIDs := voucherDTO.ProductIDs
-	if err := c.productService.CheckExistence(productIDs); err != nil {
+	if err := c.productService.CheckExistence(providerID, productIDs); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
 	}
 
-	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	if _, err := c.giftService.FindByID(providerID, voucherDTO.GiftID); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, errors.New("Gift: "+err.Error()))
+		return
+	}
+
 	if err := c.voucherService.Create(voucherDTO, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -64,7 +74,13 @@ func (c *voucherController) Update(ctx *gin.Context) {
 	voucherDTO := ctx.MustGet(configs.VOUCHER_DTO_KEY).(dto.VoucherDTO)
 
 	productIDs := voucherDTO.ProductIDs
-	if err := c.productService.CheckExistence(productIDs); err != nil {
+	if err := c.productService.CheckExistence(providerID, productIDs); err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	if _, err := c.giftService.FindByID(providerID, voucherDTO.GiftID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return

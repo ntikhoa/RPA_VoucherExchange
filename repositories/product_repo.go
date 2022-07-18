@@ -15,7 +15,7 @@ type ProductRepo interface {
 	FindByIDs(productIDs []uint) ([]entities.Product, error)
 	Search(query string, providerID uint) ([]entities.Product, error)
 	Count(providerID uint) (int64, error)
-	CheckExistence(productIDs []uint) ([]uint, error)
+	CheckExistence(providerID uint, productIDs []uint) ([]uint, error)
 	GetAll(providerID uint) ([]entities.Product, error)
 }
 
@@ -88,12 +88,12 @@ type productID struct {
 	ID uint
 }
 
-func (repo *productRepo) CheckExistence(productIDs []uint) ([]uint, error) {
+func (repo *productRepo) CheckExistence(providerID uint, productIDs []uint) ([]uint, error) {
 	var IDs []productID
 	tx := repo.
 		db.
 		Model(&entities.Product{}).
-		Where("id IN ?", productIDs).
+		Where("id IN (?) AND provider_id = ?", productIDs, providerID).
 		Find(&IDs)
 
 	ids := []uint{}

@@ -25,7 +25,7 @@ type ProductService interface {
 	FindByID(productID uint, providerID uint) (entities.Product, error)
 	Search(query string, providerID uint) ([]entities.Product, error)
 	GetCount(providerID uint) (int64, error)
-	CheckExistence(productIDs []uint) error
+	CheckExistence(providerID uint, productIDs []uint) error
 	GetAll(providerID uint) ([]entities.Product, error)
 }
 
@@ -116,8 +116,8 @@ func (s *productService) GetCount(providerID uint) (int64, error) {
 	return s.repo.Count(providerID)
 }
 
-func (s *productService) CheckExistence(productIDs []uint) error {
-	fetchedID, err := s.repo.CheckExistence(productIDs)
+func (s *productService) CheckExistence(providerID uint, productIDs []uint) error {
+	fetchedID, err := s.repo.CheckExistence(providerID, productIDs)
 	if err != nil {
 		return err
 	}
