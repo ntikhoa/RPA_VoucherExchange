@@ -43,6 +43,8 @@ func (c *voucherController) Create(ctx *gin.Context) {
 		return
 	}
 
+	//TODO check GiftID reference constraint
+
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	if err := c.voucherService.Create(voucherDTO, providerID); err != nil {
 		log.Println(err)
@@ -69,6 +71,8 @@ func (c *voucherController) Update(ctx *gin.Context) {
 		abortCustomError(ctx, err)
 		return
 	}
+
+	//TODO check GiftID reference constraint
 
 	if err := c.voucherService.Update(voucherDTO, providerID, voucherID); err != nil {
 		log.Println(err)

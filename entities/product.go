@@ -7,8 +7,9 @@ import (
 
 type Product struct {
 	gorm.Model
-	ProductName string `gorm:"type:varchar(255); not null; UNIQUE; index"`
-	ProviderID  uint   `json:"-"`
+	ProductName string   `gorm:"type:varchar(255); not null; UNIQUE"`
+	ProviderID  uint     `json:"-"`
+	Provider    Provider `json:"-" gorm:"foreignKey:ProviderID"`
 }
 
 func NewProduct(dto dto.ProductDTO, providerID uint) Product {

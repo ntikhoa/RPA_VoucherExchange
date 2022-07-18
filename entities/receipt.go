@@ -8,7 +8,7 @@ import (
 
 type Receipt struct {
 	gorm.Model
-	TransactionID string         `gorm:"type:varchar(10); not null; index"`
+	TransactionID string         `gorm:"type:varchar(10); not null"`
 	StatusID      uint           `json:"-"`
 	Status        CensorStatus   `gorm:"foreignKey:StatusID"`
 	ReceiptItems  []ReceiptItem  `gorm:"foreignKey:ReceiptID"`

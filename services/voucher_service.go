@@ -58,9 +58,6 @@ func (s *voucherService) Update(voucherDTO dto.VoucherDTO, providerID uint, vouc
 		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
 
-	//Update
-	fetchedVoucher.Gift.GiftName = voucherDTO.Gift
-	voucher.Gift = fetchedVoucher.Gift
 	return s.voucherRepo.Update(voucher)
 }
 

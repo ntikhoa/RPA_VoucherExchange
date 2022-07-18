@@ -15,8 +15,10 @@ type Voucher struct {
 	Remaining     uint      `gorm:"not null"`
 	Published     bool      `gorm:"not null"`
 	Products      []Product `gorm:"many2many:voucher_products;constraint:OnDelete:CASCADE"`
-	Gift          Gift      `gorm:"foreignKey:VoucherID;constraint:OnDelete:CASCADE"`
+	GiftID        uint      `json:"-"`
+	Gift          Gift      `gorm:"foreignKey:GiftID"`
 	ProviderID    uint      `json:"-"`
+	Provider      Provider  `json:"-" gorm:"foreignKey:ProviderID"`
 }
 
 func NewVoucher(dto dto.VoucherDTO, providerID uint) Voucher {
@@ -36,10 +38,7 @@ func NewVoucher(dto dto.VoucherDTO, providerID uint) Voucher {
 		Remaining:     dto.Remaining,
 		Published:     dto.Published,
 		Products:      products,
-		Gift: Gift{
-			GiftName:   dto.Gift,
-			ProviderID: providerID,
-		},
-		ProviderID: providerID,
+		GiftID:        dto.GiftID,
+		ProviderID:    providerID,
 	}
 }

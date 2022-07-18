@@ -36,14 +36,7 @@ func (r *voucherRepo) Create(voucher entities.Voucher) error {
 
 func (r *voucherRepo) Update(voucher entities.Voucher) error {
 
-	gift := entities.Gift{
-		VoucherID: voucher.Model.ID,
-	}
 	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&gift).Where(&gift).Update("gift_name", voucher.Gift.GiftName).Error; err != nil {
-			return err
-		}
-
 		if err := tx.Model(&voucher).Association("Products").Replace(voucher.Products); err != nil {
 			return err
 		}
@@ -116,7 +109,7 @@ func (r *voucherRepo) Delete(voucherID uint) error {
 			ID: voucherID,
 		},
 	}
-	return r.db.Select("Gift", "Products").Delete(&voucher).Error
+	return r.db.Select("Products").Delete(&voucher).Error
 }
 
 func (r *voucherRepo) Publish(voucherID uint, published bool) error {

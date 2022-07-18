@@ -9,5 +9,5 @@ type VoucherDTO struct {
 	Remaining     uint   `json:"remaining"`
 	Published     bool   `json:"published"`
 	ProductIDs    []uint `json:"products" binding:"required"`
-	Gift          string `json:"gift" binding:"required"`
+	GiftID        uint   `json:"gift_id" binding:"required"`
 }
