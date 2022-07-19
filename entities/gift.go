@@ -1,6 +1,9 @@
 package entities
 
-import "gorm.io/gorm"
+import (
+	"github.com/RPA_VoucherExchange/dto"
+	"gorm.io/gorm"
+)
 
 type Gift struct {
 	gorm.Model
@@ -9,4 +12,15 @@ type Gift struct {
 	Remaining  uint     `gorm:"not null"`
 	ProviderID uint     `json:"-"`
 	Provider   Provider `gorm:"foreignKey:ProviderID"`
+	VoucherID  uint     `json:"-"`
+}
+
+func NewGift(dto dto.GiftDTO, providerID uint) Gift {
+	return Gift{
+		GiftName:   dto.GiftName,
+		ProviderID: providerID,
+		VoucherID:  dto.VoucherID,
+		Total:      dto.Total,
+		Remaining:  dto.Remaining,
+	}
 }
