@@ -14,7 +14,7 @@ var (
 )
 
 func main() {
-	//for loading local .env file
+	// for loading local .env file
 	// utils.LoadDotEnv()
 
 	port := os.Getenv("PORT")
@@ -45,6 +45,14 @@ func main() {
 				apiProductRoutes.Use(middlewares.AuthorizeJwt(db))
 				apiProductRoutes.Use(middlewares.AuthorizeAdminRole())
 				routes.ProductRoutes(apiProductRoutes, db)
+			}
+
+			apiGiftRoutes := apiAdminRoutes.Group("/gifts")
+			{
+				apiGiftRoutes.Use(middlewares.AuthorizeJwt(db))
+				apiGiftRoutes.Use(middlewares.AuthorizeAdminRole())
+				routes.GiftRoutes(apiGiftRoutes, db)
+
 			}
 
 			apiVoucherRoutes := apiAdminRoutes.Group("/vouchers")

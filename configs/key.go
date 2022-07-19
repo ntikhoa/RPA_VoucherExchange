@@ -21,4 +21,5 @@ const (
 	SEARCH_QUERY_KEY              = "search_query_key"
 	FROM_DATE                     = "from date"
 	TO_DATE                       = "to date"
+	GIFT_DTO_KEY                  = "gift_dto_key"
 )
