@@ -31,7 +31,7 @@ func (repo *accountRepo) Create(account entities.Account) error {
 }
 
 func (repo *accountRepo) Update(account entities.Account) error {
-	return repo.db.Save(&account).Error
+	return repo.db.Omit("created_at").Save(&account).Error
 }
 
 func (repo *accountRepo) FindByUsername(username string) (entities.Account, error) {
