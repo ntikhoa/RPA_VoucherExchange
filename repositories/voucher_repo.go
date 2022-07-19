@@ -41,7 +41,7 @@ func (r *voucherRepo) Update(voucher entities.Voucher) error {
 			return err
 		}
 
-		if err := tx.Save(&voucher).Error; err != nil {
+		if err := tx.Omit("created_at").Save(&voucher).Error; err != nil {
 			return err
 		}
 
