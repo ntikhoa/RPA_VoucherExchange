@@ -15,7 +15,6 @@ type GiftRepo interface {
 	FindByIDs(giftIDs []uint) ([]entities.Gift, error)
 	Search(query string, providerID uint) ([]entities.Gift, error)
 	Count(providerID uint) (int64, error)
-	CheckExistence(providerID uint, giftIDs []uint) ([]uint, error)
 	GetAll(providerID uint) ([]entities.Gift, error)
 }
 
@@ -34,12 +33,11 @@ func (repo *giftRepo) Create(gift entities.Gift) error {
 }
 
 func (repo *giftRepo) Update(gift entities.Gift) error {
-	return repo.db.Save(&gift).Error
+	return repo.db.Omit("created_at").Save(&gift).Error
 }
 
 func (repo *giftRepo) DeleteByID(giftID uint) error {
 	return repo.db.
-		Unscoped().
 		Delete(&entities.Gift{}, giftID).
 		Error
 }
@@ -84,26 +82,6 @@ func (repo *giftRepo) Count(providerID uint) (int64, error) {
 	return count, err
 }
 
-type giftID struct {
-	ID uint
-}
-
-func (repo *giftRepo) CheckExistence(providerID uint, giftIDs []uint) ([]uint, error) {
-	var IDs []giftID
-	tx := repo.
-		db.
-		Model(&entities.Gift{}).
-		Where("id IN (?) AND provider_id = ?", giftIDs, providerID).
-		Find(&IDs)
-
-	ids := []uint{}
-
-	for _, id := range IDs {
-		ids = append(ids, id.ID)
-	}
-	return ids, tx.Error
-}
-
 func (repo *giftRepo) GetAll(providerID uint) ([]entities.Gift, error) {
 	var gifts []entities.Gift
 
@@ -126,7 +104,6 @@ func (repo *giftRepo) FindByIDs(giftIDs []uint) ([]entities.Gift, error) {
 func (repo *giftRepo) DeleteByIDs(giftIDs []uint) error {
 	var gifts []entities.Gift
 	return repo.db.
-		Unscoped().
 		Delete(&gifts, giftIDs).
 		Error
 }

@@ -24,7 +24,6 @@ type GiftService interface {
 	FindByID(giftID uint, providerID uint) (entities.Gift, error)
 	Search(query string, providerID uint) ([]entities.Gift, error)
 	GetCount(providerID uint) (int64, error)
-	CheckExistence(providerID uint, giftIDs []uint) error
 	GetAll(providerID uint) ([]entities.Gift, error)
 }
 
@@ -57,7 +56,7 @@ func (s *giftService) Update(giftDTO dto.GiftDTO, providerID uint, giftID uint) 
 	if fetchedGift.ProviderID != gift.ProviderID {
 		return custom_error.NewForbiddenError(constants.AUTHORIZE_ERROR)
 	}
-	gift.CreatedAt = fetchedGift.CreatedAt
+
 	return s.repo.Update(gift)
 }
 
@@ -114,21 +113,6 @@ func (s *giftService) Search(query string, providerID uint) ([]entities.Gift, er
 
 func (s *giftService) GetCount(providerID uint) (int64, error) {
 	return s.repo.Count(providerID)
-}
-
-func (s *giftService) CheckExistence(providerID uint, giftIDs []uint) error {
-	fetchedID, err := s.repo.CheckExistence(providerID, giftIDs)
-	if err != nil {
-		return err
-	}
-
-	invalidGiftIDs := extractInvalidIDs(fetchedID, giftIDs)
-
-	if len(invalidGiftIDs) > 0 {
-		invalidIDstr := convertToStringError(invalidGiftIDs)
-		return custom_error.NewConflictError("invalid gift ids: " + invalidIDstr)
-	}
-	return nil
 }
 
 func (s *giftService) GetAll(providerID uint) ([]entities.Gift, error) {

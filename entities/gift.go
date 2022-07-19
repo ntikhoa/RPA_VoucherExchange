@@ -11,15 +11,13 @@ type Gift struct {
 	Total      uint     `gorm:"not null"`
 	Remaining  uint     `gorm:"not null"`
 	ProviderID uint     `json:"-"`
-	Provider   Provider `gorm:"foreignKey:ProviderID"`
-	VoucherID  uint     `json:"-"`
+	Provider   Provider `json:"-" gorm:"foreignKey:ProviderID"`
 }
 
 func NewGift(dto dto.GiftDTO, providerID uint) Gift {
 	return Gift{
 		GiftName:   dto.GiftName,
 		ProviderID: providerID,
-		VoucherID:  dto.VoucherID,
 		Total:      dto.Total,
 		Remaining:  dto.Remaining,
 	}

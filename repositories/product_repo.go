@@ -34,7 +34,7 @@ func (repo *productRepo) Create(product entities.Product) error {
 }
 
 func (repo *productRepo) Update(product entities.Product) error {
-	return repo.db.Save(&product).Error
+	return repo.db.Omit("created_at").Save(&product).Error
 }
 
 func (repo *productRepo) DeleteByID(productID uint) error {
