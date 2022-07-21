@@ -96,6 +96,16 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
 
+		log.Println("INPUT BEGIN")
+		for key, values := range ctx.Request.MultipartForm.Value {
+			str := ""
+			for _, value := range values {
+				str += value + " "
+			}
+			log.Println(key, str)
+		}
+		log.Println("INPUT END")
+
 		if ctx.Request.MultipartForm == nil {
 			ctx.AbortWithError(http.StatusBadRequest, errors.New("cannot parse form data"))
 			return
