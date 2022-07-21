@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"errors"
+	"log"
 	"strconv"
 )
 
@@ -12,7 +13,7 @@ func getUintArrayType(requestForm map[string][]string, key string) ([]uint, erro
 	}
 	var valueUint []uint
 	for _, value := range values {
-		log.println(value)
+		log.Println(value)
 		valueUint64, err := strconv.ParseUint(value, 10, 64)
 		if err != nil {
 			return valueUint, errors.New("\"" + key + "\" " + " invalid type")
