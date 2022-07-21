@@ -107,6 +107,8 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
+		log.Println(products)
+		log.Println(ctx.Request.MultipartForm.Value["prices"])
 		prices, err := getUintArrayType(ctx.Request.MultipartForm.Value, "prices")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)
