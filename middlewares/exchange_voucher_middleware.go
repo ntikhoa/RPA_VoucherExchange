@@ -98,11 +98,7 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 
 		log.Println("INPUT BEGIN")
 		for key, values := range ctx.Request.MultipartForm.Value {
-			str := ""
-			for _, value := range values {
-				str += value + " "
-			}
-			log.Println(key, str)
+			log.Println(key, values)
 		}
 		log.Println("INPUT END")
 
