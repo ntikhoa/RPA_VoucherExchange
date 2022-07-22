@@ -17,6 +17,7 @@ type ProductRepo interface {
 	Count(providerID uint) (int64, error)
 	CheckExistence(providerID uint, productIDs []uint) ([]uint, error)
 	GetAll(providerID uint) ([]entities.Product, error)
+	GetExchangeProductsNames(providerID uint) ([]string, error)
 }
 
 type productRepo struct {
@@ -129,4 +130,17 @@ func (repo *productRepo) DeleteByIDs(productIDs []uint) error {
 		Unscoped().
 		Delete(&products, productIDs).
 		Error
+}
+
+func (repo *productRepo) GetExchangeProductsNames(providerID uint) ([]string, error) {
+	var products []string
+	err := repo.db.
+		Model(&entities.Product{}).
+		Select("product_name").
+		Joins("JOIN voucher_products ON products.id = voucher_products.product_id AND products.provider_id = ?", providerID).
+		Joins("JOIN vouchers ON vouchers.id = voucher_products.voucher_id AND vouchers.published = 1").
+		Find(&products).
+		Error
+
+	return products, err
 }

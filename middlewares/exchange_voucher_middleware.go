@@ -96,12 +96,6 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Request.ParseMultipartForm(32 << 20) // 32MB + 10MB
 
-		log.Println("INPUT BEGIN")
-		for key, values := range ctx.Request.MultipartForm.Value {
-			log.Println(key, values)
-		}
-		log.Println("INPUT END")
-
 		if ctx.Request.MultipartForm == nil {
 			ctx.AbortWithError(http.StatusBadRequest, errors.New("cannot parse form data"))
 			return
@@ -113,8 +107,6 @@ func ValidateExchangeVoucher() gin.HandlerFunc {
 			return
 		}
 
-		log.Println(products)
-		log.Println(ctx.Request.MultipartForm.Value["prices"])
 		prices, err := getUintArrayType(ctx.Request.MultipartForm.Value, "prices")
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)

@@ -27,6 +27,7 @@ type ProductService interface {
 	GetCount(providerID uint) (int64, error)
 	CheckExistence(providerID uint, productIDs []uint) error
 	GetAll(providerID uint) ([]entities.Product, error)
+	GetExchangeProductsNames(providerID uint) ([]string, error)
 }
 
 type productService struct {
@@ -157,6 +158,15 @@ func (s *productService) DeleteByIDs(productIDs []uint, providerID uint) error {
 		return s.repo.DeleteByIDs(filteredProductIDs)
 	}
 	return nil
+}
+
+func (s *productService) GetExchangeProductsNames(providerID uint) ([]string, error) {
+	productsNames, err := s.repo.GetExchangeProductsNames(providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	return productsNames, nil
 }
 
 func extractInvalidIDs(fetchedIDs []uint, requestIDs []uint) []uint {

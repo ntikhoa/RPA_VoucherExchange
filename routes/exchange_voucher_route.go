@@ -12,11 +12,13 @@ import (
 func initExchangeVoucherController(db *gorm.DB) controllers.ExchangeVoucherController {
 	voucherRepo := repositories.NewVoucherRepo(db)
 	receiptRepo := repositories.NewReceiptRepo(db)
+	productRepo := repositories.NewProductRepo(db)
 
+	productService := services.NewProductService(productRepo)
 	evService := services.NewExchangeVoucherService(voucherRepo)
 	receiptService := services.NewReceiptService(receiptRepo)
 	imageService := services.NewImageService()
-	return controllers.NewExchangeVoucherController(evService, imageService, receiptService)
+	return controllers.NewExchangeVoucherController(evService, imageService, receiptService, productService)
 }
 
 func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
@@ -32,6 +34,11 @@ func ExchangeVoucherRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		middlewares.ValidateExchangeVoucher(),
 		func(ctx *gin.Context) {
 			controller.ExchangeVoucher(ctx)
+		})
+
+	g.GET("/products",
+		func(ctx *gin.Context) {
+			controller.GetExchangeProductsNames(ctx)
 		})
 
 }
