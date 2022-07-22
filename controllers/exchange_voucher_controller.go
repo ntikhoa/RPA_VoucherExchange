@@ -15,21 +15,25 @@ import (
 type ExchangeVoucherController interface {
 	ViewExchangeVoucher(ctx *gin.Context)
 	ExchangeVoucher(ctx *gin.Context)
+	GetExchangeProductsNames(ctx *gin.Context)
 }
 
 type exchangeVoucherController struct {
 	evService      services.ExchangeVoucherService
 	imageService   services.ImageService
 	receiptService services.ReceiptService
+	productService services.ProductService
 }
 
 func NewExchangeVoucherController(evService services.ExchangeVoucherService,
 	imageService services.ImageService,
-	receiptService services.ReceiptService) ExchangeVoucherController {
+	receiptService services.ReceiptService,
+	productService services.ProductService) ExchangeVoucherController {
 	return &exchangeVoucherController{
 		evService:      evService,
 		imageService:   imageService,
 		receiptService: receiptService,
+		productService: productService,
 	}
 }
 
@@ -86,5 +90,26 @@ func (c *exchangeVoucherController) ExchangeVoucher(ctx *gin.Context) {
 		"data":    nil,
 		"error":   nil,
 		"message": "Vouchers exchange successfully.",
+	})
+}
+
+func (c *exchangeVoucherController) GetExchangeProductsNames(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+
+	productsNames, err := c.productService.GetExchangeProductsNames(providerID)
+
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": http.StatusOK,
+		"data": gin.H{
+			"products_names": productsNames,
+		},
+		"error":   nil,
+		"message": "Exchange products found successfully.",
 	})
 }
