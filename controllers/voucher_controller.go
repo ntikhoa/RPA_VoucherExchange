@@ -80,7 +80,7 @@ func (c *voucherController) Update(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := c.giftService.FindByID(providerID, voucherDTO.GiftID); err != nil {
+	if _, err := c.giftService.FindByID(voucherDTO.GiftID, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
