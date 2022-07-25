@@ -81,6 +81,12 @@ func main() {
 				apiExchangeRoutes.Use(middlewares.AuthorizeAdminRole())
 				routes.TestVoucher(apiExchangeRoutes, db)
 			}
+			apiTransferRoutes := apiAdminRoutes.Group("/transfer")
+			{
+				apiTransferRoutes.Use(middlewares.AuthorizeJwt(db))
+				apiTransferRoutes.Use(middlewares.AuthorizeAdminRole())
+				routes.TransferRoutes(apiTransferRoutes, db)
+			}
 
 		}
 

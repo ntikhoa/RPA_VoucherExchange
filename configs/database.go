@@ -39,6 +39,7 @@ func (db *database) ConnectDB() {
 
 func (db *database) Init() {
 	db.connection.AutoMigrate(
+		&entities.Transfer{},
 		&entities.Account{},
 		&entities.Provider{},
 		&entities.CensorStatus{},

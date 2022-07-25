@@ -91,7 +91,7 @@ func (s *giftService) FindByID(giftID uint, providerID uint) (entities.Gift, err
 	gift, err := s.repo.FindByID(giftID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return gift, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
+			return gift, custom_error.NewNotFoundError("gift " + constants.NOT_FOUND_ERROR)
 		}
 		return gift, err
 	}

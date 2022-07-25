@@ -22,4 +22,5 @@ const (
 	FROM_DATE                     = "from date"
 	TO_DATE                       = "to date"
 	GIFT_DTO_KEY                  = "gift_dto_key"
+	TRANSFER_DTO_KEY              = "transfer_dto_key"
 )
