@@ -139,6 +139,7 @@ func (repo *productRepo) GetExchangeProductsNames(providerID uint) ([]string, er
 		Select("product_name").
 		Joins("JOIN voucher_products ON products.id = voucher_products.product_id AND products.provider_id = ?", providerID).
 		Joins("JOIN vouchers ON vouchers.id = voucher_products.voucher_id AND vouchers.published = 1").
+		Distinct().
 		Find(&products).
 		Error
 
