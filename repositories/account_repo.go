@@ -10,7 +10,7 @@ type AccountRepo interface {
 	Create(account entities.Account) error
 	Update(account entities.Account) error
 	FindByUsername(username string) (entities.Account, error)
-	FindAccount(accountID uint, providerID uint) (entities.Account, error)
+	FindByID(accountID uint, providerID uint) (entities.Account, error)
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.AccountResponse, error)
 	Search(query string, providerID uint) ([]viewmodel.AccountResponse, error)
@@ -44,7 +44,7 @@ func (repo *accountRepo) FindByUsername(username string) (entities.Account, erro
 	return account, err
 }
 
-func (repo *accountRepo) FindAccount(accountID uint, providerID uint) (entities.Account, error) {
+func (repo *accountRepo) FindByID(accountID uint, providerID uint) (entities.Account, error) {
 	account := entities.Account{}
 	err := repo.db.
 		Where(&entities.Account{
@@ -53,7 +53,7 @@ func (repo *accountRepo) FindAccount(accountID uint, providerID uint) (entities.
 			},
 			ProviderID: providerID,
 		}).
-		Find(&account).
+		First(&account).
 		Error
 
 	return account, err

@@ -7,17 +7,19 @@ import (
 
 type AccountResponse struct {
 	gorm.Model
-	Username string
-	Name     string
-	RoleID   uint          `json:"-"`
-	Role     entities.Role `gorm:"foreignKey:RoleID"`
+	Username   string
+	Name       string
+	RoleID     uint          `json:"-"`
+	Role       entities.Role `gorm:"foreignKey:RoleID"`
+	ProviderID uint          `json:"-"`
 }
 
 func NewAccountResponse(entity entities.Account) AccountResponse {
 	return AccountResponse{
-		Model:    entity.Model,
-		Username: entity.Username,
-		Name:     entity.Name,
-		Role:     entity.Role,
+		Model:      entity.Model,
+		Username:   entity.Username,
+		Name:       entity.Name,
+		Role:       entity.Role,
+		ProviderID: entity.ProviderID,
 	}
 }

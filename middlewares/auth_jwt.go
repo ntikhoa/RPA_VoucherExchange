@@ -51,7 +51,7 @@ func AuthorizeJwt(db *gorm.DB) gin.HandlerFunc {
 			}
 			accountID := uint(accountIDuint64)
 
-			account, err := repositories.NewAccountRepo(db).FindAccount(accountID, providerID)
+			account, err := repositories.NewAccountRepo(db).FindByID(accountID, providerID)
 			if err != nil {
 				ctx.AbortWithError(http.StatusUnauthorized, errors.New(constants.INVALID_TOKEN_ERROR))
 				return
