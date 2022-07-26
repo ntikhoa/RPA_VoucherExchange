@@ -17,10 +17,19 @@ type ReceiptService interface {
 	Create(dto dto.ExchangeVoucherDTO, filesName []string, accountID uint) error
 	FindAll(providerID uint,
 		page int,
-		perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
-	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
+		perPage int,
+		accountID uint,
+		roleID uint) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error)
+	FindByID(providerID uint,
+		receiptID uint,
+		accountID uint,
+		roleID uint) (entities.Receipt, error)
 	Censor(providerID uint, receiptID uint, isApproved bool) error
-	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]viewmodel.ReceiptListRes, error)
+	FindBetweenDates(providerID uint,
+		accountID uint,
+		roleID uint,
+		fromDate time.Time,
+		toDate time.Time) ([]viewmodel.ReceiptListRes, error)
 }
 
 type receiptService struct {
@@ -40,14 +49,16 @@ func (s *receiptService) Create(dto dto.ExchangeVoucherDTO, filesName []string, 
 
 func (s *receiptService) FindAll(providerID uint,
 	page int,
-	perPage int) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error) {
+	perPage int,
+	accountID uint,
+	roleID uint) (viewmodel.PagingMetadata, []viewmodel.ReceiptListRes, error) {
 
 	pagingMetadata, err := paging(s.repo.Count, providerID, page, perPage)
 	if err != nil {
 		return pagingMetadata, nil, err
 	}
 
-	receipts, err := s.repo.FindAllWithPage(providerID)
+	receipts, err := s.repo.FindAllWithPage(providerID, accountID, roleID)
 	if err != nil {
 		return pagingMetadata, nil, err
 	}
@@ -57,8 +68,11 @@ func (s *receiptService) FindAll(providerID uint,
 	return pagingMetadata, receiptsRes, nil
 }
 
-func (s *receiptService) FindByID(providerID uint, receiptID uint) (entities.Receipt, error) {
-	receipt, err := s.repo.FindByID(providerID, receiptID)
+func (s *receiptService) FindByID(providerID uint,
+	receiptID uint,
+	accountID uint,
+	roleID uint) (entities.Receipt, error) {
+	receipt, err := s.repo.FindByID(providerID, receiptID, accountID, roleID)
 	if err != nil {
 		if errors.Is(gorm.ErrRecordNotFound, err) {
 			return receipt, custom_error.NewNotFoundError(constants.NOT_FOUND_ERROR)
@@ -90,13 +104,18 @@ func (s *receiptService) Censor(providerID uint, receiptID uint, isApproved bool
 	return s.repo.UpdateCensorStatus(receiptID, statusID)
 }
 
-func (s *receiptService) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]viewmodel.ReceiptListRes, error) {
+func (s *receiptService) FindBetweenDates(providerID uint,
+	accountID uint,
+	roleID uint,
+	fromDate time.Time,
+	toDate time.Time,
+) ([]viewmodel.ReceiptListRes, error) {
 
 	if toDate.Before(fromDate) {
 		return nil, custom_error.NewBadRequestError("invalid date range")
 	}
 
-	receipts, err := s.repo.FindBetweenDates(providerID, fromDate, toDate)
+	receipts, err := s.repo.FindBetweenDates(providerID, accountID, roleID, fromDate, toDate)
 	if err != nil {
 		return nil, err
 	}
