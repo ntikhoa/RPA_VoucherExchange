@@ -30,8 +30,10 @@ func (c *transactionController) FindAll(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 	page := ctx.MustGet(configs.PAGE_QUERY_KEY).(int)
 	perPage := ctx.MustGet(configs.PER_PAGE_QUERY_KEY).(int)
+	accountID := ctx.MustGet(configs.TOKEN_ACCOUNT_ID_KEY).(uint)
+	roleID := ctx.MustGet(configs.ACCOUNT_ROLE_ID_KEY).(uint)
 
-	metadata, receipts, err := c.service.FindAll(providerID, page, perPage)
+	metadata, receipts, err := c.service.FindAll(providerID, page, perPage, accountID, roleID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -51,9 +53,11 @@ func (c *transactionController) FindAll(ctx *gin.Context) {
 
 func (c *transactionController) FindByID(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	receiptId := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	receiptID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	accountID := ctx.MustGet(configs.TOKEN_ACCOUNT_ID_KEY).(uint)
+	roleID := ctx.MustGet(configs.ACCOUNT_ROLE_ID_KEY).(uint)
 
-	receipt, err := c.service.FindByID(providerID, receiptId)
+	receipt, err := c.service.FindByID(providerID, receiptID, accountID, roleID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
@@ -73,10 +77,10 @@ func (c *transactionController) FindByID(ctx *gin.Context) {
 
 func (c *transactionController) Censor(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-	receiptId := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+	receiptID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
 	isApproved := ctx.MustGet(configs.IS_APPROVED_KEY).(bool)
 
-	if err := c.service.Censor(providerID, receiptId, isApproved); err != nil {
+	if err := c.service.Censor(providerID, receiptID, isApproved); err != nil {
 		log.Print(err)
 		abortCustomError(ctx, err)
 		return
@@ -92,11 +96,12 @@ func (c *transactionController) Censor(ctx *gin.Context) {
 
 func (c *transactionController) FindBetweenDates(ctx *gin.Context) {
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
-
+	accountID := ctx.MustGet(configs.TOKEN_ACCOUNT_ID_KEY).(uint)
+	roleID := ctx.MustGet(configs.ACCOUNT_ROLE_ID_KEY).(uint)
 	fromDate := ctx.MustGet(configs.FROM_DATE).(time.Time)
 	toDate := ctx.MustGet(configs.TO_DATE).(time.Time)
 
-	receipts, err := c.service.FindBetweenDates(providerID, fromDate, toDate)
+	receipts, err := c.service.FindBetweenDates(providerID, accountID, roleID, fromDate, toDate)
 	if err != nil {
 		log.Print(err)
 		abortCustomError(ctx, err)

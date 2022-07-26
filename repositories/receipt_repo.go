@@ -3,6 +3,7 @@ package repositories
 import (
 	"time"
 
+	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/entities"
 	"gorm.io/gorm"
 )
@@ -10,9 +11,18 @@ import (
 type ReceiptRepo interface {
 	Create(receipt entities.Receipt) error
 	Count(providerID uint) (int64, error)
-	FindAllWithPage(providerID uint) ([]entities.Receipt, error)
-	FindByID(providerID uint, receiptID uint) (entities.Receipt, error)
-	FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error)
+	FindAllWithPage(providerID uint,
+		accountID uint,
+		roleID uint) ([]entities.Receipt, error)
+	FindByID(providerID uint,
+		receiptID uint,
+		accountID uint,
+		roleID uint) (entities.Receipt, error)
+	FindBetweenDates(providerID uint,
+		accountID uint,
+		roleID uint,
+		fromDate time.Time,
+		toDate time.Time) ([]entities.Receipt, error)
 	FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error)
 	UpdateCensorStatus(receiptID uint, statusID uint) error
 }
@@ -31,10 +41,9 @@ func (r *receiptRepo) Create(receipt entities.Receipt) error {
 	return r.db.Create(&receipt).Error
 }
 
-func (r *receiptRepo) FindAllWithPage(providerID uint) ([]entities.Receipt, error) {
+func (r *receiptRepo) FindAllWithPage(providerID uint, accountID uint, roleID uint) ([]entities.Receipt, error) {
 	var receipts []entities.Receipt
-
-	err := r.db.
+	curDB := r.db.
 		Model(&receipts).
 		Preload("Voucher", func(tx *gorm.DB) *gorm.DB {
 			return tx.Select("ID", "Name")
@@ -44,10 +53,11 @@ func (r *receiptRepo) FindAllWithPage(providerID uint) ([]entities.Receipt, erro
 		}).
 		Preload("Status").
 		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id").
-		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
-		Find(&receipts).
-		Error
-
+		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID)
+	if roleID != constants.ROLE_ADMIN {
+		curDB = curDB.Where("receipts.account_id = ?", accountID)
+	}
+	err := curDB.Find(&receipts).Error
 	return receipts, err
 }
 
@@ -61,9 +71,14 @@ func (r *receiptRepo) Count(providerID uint) (int64, error) {
 	return count, err
 }
 
-func (r *receiptRepo) FindByID(providerID uint, receiptID uint) (entities.Receipt, error) {
+func (r *receiptRepo) FindByID(
+	providerID uint,
+	receiptID uint,
+	accountID uint,
+	roleID uint) (entities.Receipt, error) {
+
 	receipt := entities.Receipt{Model: gorm.Model{ID: receiptID}}
-	err := r.db.
+	curDB := r.db.
 		Model(&receipt).
 		Preload("Status").
 		Preload("ReceiptItems").
@@ -75,14 +90,19 @@ func (r *receiptRepo) FindByID(providerID uint, receiptID uint) (entities.Receip
 		Preload("Account").
 		Preload("Account.Role").
 		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id").
-		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
-		First(&receipt).
-		Error
+		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID)
+		// First(&receipt).
+	if roleID != constants.ROLE_ADMIN {
+		curDB = curDB.Where("receipts.account_id = ?", accountID)
+	}
+	err := curDB.First(&receipt).Error
 
 	return receipt, err
 }
 
-func (r *receiptRepo) FindByIDWithoutJoin(providerID uint, receiptID uint) (entities.Receipt, error) {
+func (r *receiptRepo) FindByIDWithoutJoin(
+	providerID uint,
+	receiptID uint) (entities.Receipt, error) {
 	receipt := entities.Receipt{Model: gorm.Model{ID: receiptID}}
 	err := r.db.
 		Model(&receipt).
@@ -93,9 +113,14 @@ func (r *receiptRepo) FindByIDWithoutJoin(providerID uint, receiptID uint) (enti
 	return receipt, err
 }
 
-func (r *receiptRepo) FindBetweenDates(providerID uint, fromDate time.Time, toDate time.Time) ([]entities.Receipt, error) {
+func (r *receiptRepo) FindBetweenDates(providerID uint,
+	accountID uint,
+	roleID uint,
+	fromDate time.Time,
+	toDate time.Time) ([]entities.Receipt, error) {
+
 	var receipts []entities.Receipt
-	err := r.db.
+	curDB := r.db.
 		Model(&entities.Receipt{}).
 		Preload("Voucher", func(tx *gorm.DB) *gorm.DB {
 			return tx.Select("ID", "Name")
@@ -105,11 +130,12 @@ func (r *receiptRepo) FindBetweenDates(providerID uint, fromDate time.Time, toDa
 		}).
 		Preload("Status").
 		Joins("JOIN receipt_voucher ON receipts.id = receipt_voucher.receipt_id AND DATE(receipts.created_at) BETWEEN DATE(?) AND DATE(?)", fromDate, toDate).
-		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID).
-		Find(&receipts).
-		Error
+		Joins("JOIN vouchers ON vouchers.id = receipt_voucher.voucher_id AND vouchers.provider_id = ?", providerID)
+	if roleID != constants.ROLE_ADMIN {
+		curDB.Where("receipts.account_id = ?", accountID)
+	}
+	err := curDB.Find(&receipts).Error
 	return receipts, err
-
 }
 
 func (r *receiptRepo) UpdateCensorStatus(receiptID uint, statusID uint) error {
