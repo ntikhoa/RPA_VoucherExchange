@@ -11,8 +11,9 @@ import (
 )
 
 type TransferController interface {
-	TransferGift(ctx *gin.Context)
+	TransferGifts(ctx *gin.Context)
 	GetTransferGift(ctx *gin.Context)
+	AcceptGifts(ctx *gin.Context)
 }
 
 type transferController struct {
@@ -31,25 +32,30 @@ func NewTransferController(giftService services.GiftService,
 	}
 }
 
-func (c *transferController) TransferGift(ctx *gin.Context) {
-	transferDTO := ctx.MustGet(configs.TRANSFER_DTO_KEY).(dto.TransferGiftDTO)
+func (c *transferController) TransferGifts(ctx *gin.Context) {
+	transferGiftsDTO := ctx.MustGet(configs.TRANSFER_DTO_KEY).(dto.CreateTransferGiftsDTO)
 	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
 
-	_, err := c.accountService.FindByID(providerID, transferDTO.AccountID)
+	_, err := c.accountService.FindByID(providerID, transferGiftsDTO.AccountID)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
 	}
 
-	_, err = c.giftService.FindByID(transferDTO.GiftID, providerID)
+	var giftIDs []uint
+	for _, transfersDTO := range transferGiftsDTO.TransferGiftDTO {
+		giftIDs = append(giftIDs, transfersDTO.GiftID)
+	}
+
+	err = c.giftService.CheckExistence(providerID, giftIDs)
 	if err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
 	}
 
-	if err = c.transferService.CreateTransfer(transferDTO, providerID); err != nil {
+	if err = c.transferService.CreateTransfers(transferGiftsDTO, providerID); err != nil {
 		log.Println(err)
 		abortCustomError(ctx, err)
 		return
@@ -59,7 +65,7 @@ func (c *transferController) TransferGift(ctx *gin.Context) {
 		"status":  http.StatusOK,
 		"data":    nil,
 		"error":   nil,
-		"message": "Transfer gift successfully",
+		"message": "Transfer gifts successfully",
 	})
 }
 
@@ -81,5 +87,31 @@ func (c *transferController) GetTransferGift(ctx *gin.Context) {
 		},
 		"error":   nil,
 		"message": "Transfer found successfully",
+	})
+}
+
+func (c *transferController) AcceptGifts(ctx *gin.Context) {
+	providerID := ctx.MustGet(configs.TOKEN_PROVIDER_ID_KEY).(uint)
+	accountID := ctx.MustGet(configs.ID_PARAM_KEY).(uint)
+
+	_, err := c.accountService.FindByID(providerID, accountID)
+	if err != nil {
+		log.Println(err)
+		abortCustomError(ctx, err)
+		return
+	}
+
+	err = c.transferService.AcceptTransfers(accountID)
+	if err != nil {
+		log.Println()
+		abortCustomError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"data":    nil,
+		"error":   nil,
+		"message": "Accept gifts successfully",
 	})
 }

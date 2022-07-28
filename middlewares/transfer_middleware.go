@@ -10,7 +10,7 @@ import (
 
 func ValidateTransferRequest() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		dto := dto.TransferGiftDTO{}
+		dto := dto.CreateTransferGiftsDTO{}
 		err := ctx.ShouldBind(&dto)
 		if err != nil {
 			ctx.AbortWithError(http.StatusBadRequest, err)

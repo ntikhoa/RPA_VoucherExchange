@@ -8,8 +8,9 @@ import (
 )
 
 type TransferService interface {
-	CreateTransfer(dto dto.TransferGiftDTO, providerID uint) error
+	CreateTransfers(dto dto.CreateTransferGiftsDTO, providerID uint) error
 	GetTransferByAccount(accountID uint, providerID uint) ([]viewmodel.TransferResponse, error)
+	AcceptTransfers(accountID uint) error
 }
 
 type transferService struct {
@@ -20,9 +21,9 @@ func NewTransferService(repo repositories.TransferRepo) TransferService {
 	return &transferService{repo: repo}
 }
 
-func (s *transferService) CreateTransfer(dto dto.TransferGiftDTO, providerID uint) error {
-	transfer := entities.NewTransfer(dto)
-	return s.repo.CreateTransfer(transfer)
+func (s *transferService) CreateTransfers(dto dto.CreateTransferGiftsDTO, providerID uint) error {
+	transfer := entities.NewSliceTransfer(dto)
+	return s.repo.CreateTransfers(transfer)
 }
 
 func (s *transferService) GetTransferByAccount(accountID uint, providerID uint) ([]viewmodel.TransferResponse, error) {
@@ -32,4 +33,8 @@ func (s *transferService) GetTransferByAccount(accountID uint, providerID uint) 
 	}
 	res := viewmodel.NewSliceTransferResponse(transfers)
 	return res, nil
+}
+
+func (s *transferService) AcceptTransfers(accountID uint) error {
+	return s.repo.DeleteTransfers(accountID)
 }

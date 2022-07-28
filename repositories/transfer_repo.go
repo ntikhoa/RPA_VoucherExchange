@@ -6,8 +6,9 @@ import (
 )
 
 type TransferRepo interface {
-	CreateTransfer(transfer entities.Transfer) error
+	CreateTransfers(transfer []entities.Transfer) error
 	GetTransfersByAccount(accountID uint, providerID uint) ([]entities.Transfer, error)
+	DeleteTransfers(accountID uint) error
 }
 
 type transferRepo struct {
@@ -18,8 +19,8 @@ func NewTransferRepo(db *gorm.DB) TransferRepo {
 	return &transferRepo{db: db}
 }
 
-func (r *transferRepo) CreateTransfer(transfer entities.Transfer) error {
-	return r.db.Create(&transfer).Error
+func (r *transferRepo) CreateTransfers(transfer []entities.Transfer) error {
+	return r.db.CreateInBatches(&transfer, len(transfer)).Error
 }
 
 func (r *transferRepo) GetTransfersByAccount(accountID uint, providerID uint) ([]entities.Transfer, error) {
@@ -34,4 +35,11 @@ func (r *transferRepo) GetTransfersByAccount(accountID uint, providerID uint) ([
 		Error
 
 	return transfers, err
+}
+
+func (r *transferRepo) DeleteTransfers(accountID uint) error {
+	return r.db.
+		Where("account_id = ?", accountID).
+		Delete(&entities.Transfer{}).
+		Error
 }
