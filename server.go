@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/RPA_VoucherExchange/configs"
@@ -29,6 +30,17 @@ func main() {
 
 	server.Use(middlewares.SetHeader())
 	server.Use(middlewares.ErrorHandler())
+
+	server.POST("/echo_post", func(ctx *gin.Context) {
+		ctx.Request.ParseForm()
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"data":    ctx.Request.PostForm,
+			"error":   nil,
+			"message": "Vouchers found successfully.",
+		})
+	})
 
 	apiRoutesV1 := server.Group("/api/v1")
 	{

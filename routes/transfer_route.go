@@ -29,7 +29,7 @@ func TransferRoutes(g *gin.RouterGroup, db *gorm.DB) {
 	g.POST("",
 		middlewares.ValidateTransferRequest(),
 		func(ctx *gin.Context) {
-			controller.TransferGift(ctx)
+			controller.TransferGifts(ctx)
 		})
 
 	//account id
@@ -37,5 +37,12 @@ func TransferRoutes(g *gin.RouterGroup, db *gorm.DB) {
 		middlewares.GetIDFromURL(),
 		func(ctx *gin.Context) {
 			controller.GetTransferGift(ctx)
+		})
+
+	//account id
+	g.DELETE("/:id",
+		middlewares.GetIDFromURL(),
+		func(ctx *gin.Context) {
+			controller.AcceptGifts(ctx)
 		})
 }

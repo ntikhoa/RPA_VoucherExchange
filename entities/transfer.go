@@ -14,10 +14,18 @@ type Transfer struct {
 	Gift      Gift    `gorm:"foreignKey:GiftID"`
 }
 
-func NewTransfer(dto dto.TransferGiftDTO) Transfer {
+func NewTransfer(dto dto.TransferGiftDTO, accountID uint) Transfer {
 	return Transfer{
-		AccountID: dto.AccountID,
+		AccountID: accountID,
 		Quantity:  dto.Quantity,
 		GiftID:    dto.GiftID,
 	}
+}
+
+func NewSliceTransfer(dto dto.CreateTransferGiftsDTO) []Transfer {
+	var transfer []Transfer
+	for _, value := range dto.TransferGiftDTO {
+		transfer = append(transfer, NewTransfer(value, dto.AccountID))
+	}
+	return transfer
 }

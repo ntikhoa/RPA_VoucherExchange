@@ -16,6 +16,7 @@ type GiftRepo interface {
 	Search(query string, providerID uint) ([]entities.Gift, error)
 	Count(providerID uint) (int64, error)
 	GetAll(providerID uint) ([]entities.Gift, error)
+	CheckExistence(providerID uint, giftIDs []uint) ([]uint, error)
 }
 
 type giftRepo struct {
@@ -106,4 +107,24 @@ func (repo *giftRepo) DeleteByIDs(giftIDs []uint) error {
 	return repo.db.
 		Delete(&gifts, giftIDs).
 		Error
+}
+
+type giftID struct {
+	ID uint
+}
+
+func (repo *giftRepo) CheckExistence(providerID uint, giftIDs []uint) ([]uint, error) {
+	var IDs []giftID
+	tx := repo.
+		db.
+		Model(&entities.Gift{}).
+		Where("id IN (?) AND provider_id = ?", giftIDs, providerID).
+		Find(&IDs)
+
+	ids := []uint{}
+
+	for _, id := range IDs {
+		ids = append(ids, id.ID)
+	}
+	return ids, tx.Error
 }

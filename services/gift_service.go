@@ -25,6 +25,7 @@ type GiftService interface {
 	Search(query string, providerID uint) ([]entities.Gift, error)
 	GetCount(providerID uint) (int64, error)
 	GetAll(providerID uint) ([]entities.Gift, error)
+	CheckExistence(providerID uint, giftIDs []uint) error
 }
 
 type giftService struct {
@@ -139,6 +140,21 @@ func (s *giftService) DeleteByIDs(giftIDs []uint, providerID uint) error {
 	}
 	if len(filteredGiftIDs) > 0 {
 		return s.repo.DeleteByIDs(filteredGiftIDs)
+	}
+	return nil
+}
+
+func (s *giftService) CheckExistence(providerID uint, giftIDs []uint) error {
+	fetchedID, err := s.repo.CheckExistence(providerID, giftIDs)
+	if err != nil {
+		return err
+	}
+
+	invalidProductIDs := extractInvalidIDs(fetchedID, giftIDs)
+
+	if len(invalidProductIDs) > 0 {
+		invalidIDstr := convertToStringError(invalidProductIDs)
+		return custom_error.NewConflictError("invalid gift ids: " + invalidIDstr)
 	}
 	return nil
 }
