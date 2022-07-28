@@ -54,12 +54,8 @@ func (repo *giftRepo) FindAllWithPage(providerID uint, page int, perPage int) ([
 }
 
 func (repo *giftRepo) FindByID(giftID uint) (entities.Gift, error) {
-	gift := entities.Gift{
-		Model: gorm.Model{
-			ID: giftID,
-		},
-	}
-	err := repo.db.First(&gift).Error
+	gift := entities.Gift{}
+	err := repo.db.First(&gift, giftID).Error
 
 	return gift, err
 }
