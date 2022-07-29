@@ -22,7 +22,25 @@ func NewTransferService(repo repositories.TransferRepo) TransferService {
 }
 
 func (s *transferService) CreateTransfers(dto dto.CreateTransferGiftsDTO, providerID uint) error {
+
+	existedTransfer, err := s.GetTransferByAccount(dto.AccountID, providerID)
+	if err != nil {
+		return err
+	}
 	transfer := entities.NewSliceTransfer(dto)
+	transferMap := make(map[uint]viewmodel.TransferResponse)
+	for _, value := range existedTransfer {
+		transferMap[value.GiftID] = value
+	}
+
+	for i, value := range transfer {
+		_, ok := transferMap[value.GiftID]
+		if ok {
+			transfer[i].Quantity += transferMap[value.GiftID].Quantity
+			transfer[i].Model.ID = transferMap[value.GiftID].ID
+		}
+	}
+
 	return s.repo.CreateTransfers(transfer)
 }
 

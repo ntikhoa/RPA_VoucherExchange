@@ -20,7 +20,7 @@ func NewTransferRepo(db *gorm.DB) TransferRepo {
 }
 
 func (r *transferRepo) CreateTransfers(transfer []entities.Transfer) error {
-	return r.db.CreateInBatches(&transfer, len(transfer)).Error
+	return r.db.Save(&transfer).Error
 }
 
 func (r *transferRepo) GetTransfersByAccount(accountID uint, providerID uint) ([]entities.Transfer, error) {
