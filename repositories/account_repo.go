@@ -14,6 +14,7 @@ type AccountRepo interface {
 	Count(providerID uint) (int64, error)
 	FindAllWithPage(providerID uint, page int, perPage int) ([]viewmodel.AccountResponse, error)
 	Search(query string, providerID uint) ([]viewmodel.AccountResponse, error)
+	GetAccountProfile(accountID uint) (entities.Account, error)
 }
 
 type accountRepo struct {
@@ -98,4 +99,14 @@ func (repo *accountRepo) Search(query string, providerID uint) ([]viewmodel.Acco
 		Find(&accountsRes).
 		Error
 	return accountsRes, err
+}
+
+func (repo *accountRepo) GetAccountProfile(accountID uint) (entities.Account, error) {
+	account := entities.Account{}
+	err := repo.db.
+		Preload("Provider").
+		First(&account, accountID).
+		Error
+
+	return account, err
 }

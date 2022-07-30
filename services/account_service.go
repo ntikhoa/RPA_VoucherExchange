@@ -5,6 +5,7 @@ import (
 
 	"github.com/RPA_VoucherExchange/constants"
 	"github.com/RPA_VoucherExchange/custom_error"
+	"github.com/RPA_VoucherExchange/entities"
 	"github.com/RPA_VoucherExchange/repositories"
 	viewmodel "github.com/RPA_VoucherExchange/view_model"
 	"gorm.io/gorm"
@@ -16,6 +17,7 @@ type AccountService interface {
 		perPage int) (viewmodel.PagingMetadata, []viewmodel.AccountResponse, error)
 	Search(query string, providerID uint) ([]viewmodel.AccountResponse, error)
 	FindByID(providerID uint, accountID uint) (viewmodel.AccountResponse, error)
+	GetAccountProfile(accountID uint) (entities.Account, error)
 }
 
 type accountService struct {
@@ -65,4 +67,17 @@ func (s *accountService) FindByID(providerID uint, accountID uint) (viewmodel.Ac
 	accountRes = viewmodel.NewAccountResponse(account)
 
 	return accountRes, nil
+}
+
+func (s *accountService) GetAccountProfile(accountID uint) (entities.Account, error) {
+	account, err := s.repo.GetAccountProfile(accountID)
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return account, custom_error.NewNotFoundError("account " + constants.NOT_FOUND_ERROR)
+		}
+		return account, err
+	}
+
+	return account, nil
 }

@@ -23,3 +23,19 @@ func NewAccountResponse(entity entities.Account) AccountResponse {
 		ProviderID: entity.ProviderID,
 	}
 }
+
+type AccountProfile struct {
+	gorm.Model
+	Username string
+	Name     string
+	Provider entities.Provider
+}
+
+func NewAccountProfileRes(entity entities.Account) AccountProfile {
+	return AccountProfile{
+		Model:    entity.Model,
+		Username: entity.Username,
+		Name:     entity.Name,
+		Provider: entity.Provider,
+	}
+}
